@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="polreg-web" content="1">
+<meta name="theme-color" content="#eef1f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111319" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Polreg Sulut">
+<title>Polreg Sulut</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}
+#bootMsg{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:999px;font:500 13px var(--text);z-index:80;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100vw - 32px);text-align:center}</style>
+<style id="app-css">
+/* Tata letak: kanvas abu kebiruan, kartu putih membulat; ringkasan di atas, lalu perbandingan cabang, lalu rincian per dimensi. */
+:root {
+  --bg: #eef1f7; --card: #ffffff; --soft: #f4f6fb; --line: #e4e8f0; --line2: #d5dae6;
+  --ink: #141824; --ink2: #566074; --muted: #8791a5;
+  --s1: #2a78d6; --s2: #eda100; --s3: #1baf7a; --s4: #6250d6; --s5: #e34948; --s0: #bcc3d0;
+  --t1: #1d62ba; --t2: #9a6500; --t3: #0c7f55; --t4: #5140c4;
+  --w1: #e6f0fc; --w2: #fdf2d8; --w3: #dff5ec; --w4: #ebe8fb;
+  --good: #0c7f55; --warn: #9a6500; --bad: #c0352f;
+  --shadow: 0 1px 2px rgba(20, 24, 36, .04), 0 8px 24px rgba(20, 24, 36, .05);
+  --display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --text: "Inter", "Segoe UI", system-ui, sans-serif;
+  --r: 18px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111319; --card: #1b1e27; --soft: #232732; --line: #2b303c; --line2: #3a4050;
+    --ink: #eef0f5; --ink2: #b6bccb; --muted: #838ca1;
+    --s1: #3987e5; --s2: #c98500; --s3: #199e70; --s4: #9085e9; --s5: #e66767; --s0: #505869;
+    --t1: #74adf2; --t2: #e3a733; --t3: #45c797; --t4: #aaa1f1;
+    --w1: #1c2b42; --w2: #3a2d10; --w3: #143329; --w4: #29264a;
+    --good: #45c797; --warn: #e3a733; --bad: #f08a85;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111319; --card: #1b1e27; --soft: #232732; --line: #2b303c; --line2: #3a4050;
+  --ink: #eef0f5; --ink2: #b6bccb; --muted: #838ca1;
+  --s1: #3987e5; --s2: #c98500; --s3: #199e70; --s4: #9085e9; --s5: #e66767; --s0: #505869;
+  --t1: #74adf2; --t2: #e3a733; --t3: #45c797; --t4: #aaa1f1;
+  --w1: #1c2b42; --w2: #3a2d10; --w3: #143329; --w4: #29264a;
+  --good: #45c797; --warn: #e3a733; --bad: #f08a85;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 14px; line-height: 1.45; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.pg { max-width: 1320px; margin: 0 auto; padding-block: 20px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 16px; }
+.pg *, .pg *::before, .pg *::after { box-sizing: border-box; }
+.pg button, .pg input, .pg select { font: inherit; color: inherit; }
+.pg button { cursor: pointer; }
+.pg button, .pg label, .pg a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.btn { display: inline-flex; align-items: center; justify-content: center; }
+.pg :focus-visible { outline: 2px solid var(--s1); outline-offset: 2px; border-radius: 6px; }
+
+/* kepala */
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 4px 4px 0; }
+.top h1 { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.top p { margin: 2px 0 0; color: var(--ink2); }
+.nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.nav button { border: 1px solid var(--line2); background: var(--card); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 500; color: var(--ink2); }
+.nav button:hover { color: var(--ink); border-color: var(--s1); }
+
+.card { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); padding: 20px; min-width: 0; }
+.card > h2 { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0; }
+.card > h2 + .sub { margin: 2px 0 14px; color: var(--muted); font-size: 12.5px; }
+h3.mini { font-family: var(--display); font-weight: 600; font-size: 13.5px; margin: 0 0 8px; }
+.sub2 { color: var(--muted); font-size: 12px; margin: -4px 0 8px; }
+
+/* filter */
+.filters { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chips .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin-right: 4px; }
+.chip { border: 1px solid var(--line2); background: var(--card); color: var(--ink2); border-radius: 999px; padding: 5px 11px; font-size: 12.5px; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--s1); border-color: var(--s1); color: #fff; }
+.chip.ghost { border-style: dashed; }
+.frow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; gap: 8px; }
+.ms { position: relative; min-width: 0; }
+.ms > button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; text-align: left; min-height: 44px; }
+.ms > button .k { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.ms > button .v { display: block; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms > button > span:first-child { min-width: 0; }
+.ms > button.on { border-color: var(--s1); background: var(--w1); }
+.ms .caret { color: var(--muted); font-size: 10px; flex: none; }
+.pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; width: max(100%, 280px); max-width: calc(100vw - 32px); background: var(--card); border: 1px solid var(--line2); border-radius: 14px; box-shadow: 0 16px 40px rgba(10, 14, 30, .22); padding: 10px; }
+.ms.right .pop { left: auto; right: 0; }
+.pop input[type="search"] { width: 100%; border: 1px solid var(--line2); background: var(--soft); border-radius: 9px; padding: 8px 10px; }
+.pop .acts { display: flex; gap: 6px; margin: 8px 0; }
+.pop .acts button { border: 1px solid var(--line2); background: var(--card); border-radius: 8px; padding: 4px 9px; font-size: 12px; }
+.pop ul { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow: auto; }
+.pop li label { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-radius: 8px; cursor: pointer; }
+.pop li label:hover { background: var(--soft); }
+.pop li .n { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+.pop li .t { min-width: 0; overflow-wrap: anywhere; }
+.pop .more { color: var(--muted); font-size: 12px; padding: 6px; }
+.reset { border: 1px solid var(--line2); background: var(--card); border-radius: 12px; padding: 0 14px; font-weight: 500; min-height: 44px; }
+.fnote { color: var(--muted); font-size: 12px; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi { position: relative; overflow: hidden; padding: 16px 18px 14px; min-height: 124px; }
+.kpi .t { font-family: var(--display); font-weight: 600; font-size: 14px; }
+.kpi .s { color: var(--muted); font-size: 11.5px; }
+.kpi .big { font-family: var(--display); font-weight: 700; font-size: 34px; line-height: 1.1; margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.kpi .u { font-weight: 600; font-size: 12.5px; color: var(--ink2); position: relative; z-index: 1; }
+.kpi svg { position: absolute; right: 0; bottom: 0; width: 54%; height: 64%; pointer-events: none; }
+.kpi.c1 .big { color: var(--t1); } .kpi.c2 .big { color: var(--t3); } .kpi.c3 .big { color: var(--t4); } .kpi.c4 .big { color: var(--t2); }
+.kpi .big, .kpi .t, .kpi .s { position: relative; z-index: 1; }
+
+/* grid panel */
+.g2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.g13 { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 24px; align-items: center; }
+.g23 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 20px; }
+.blk { min-width: 0; }
+.blk + .blk.sep { border-top: 1px solid var(--line); padding-top: 18px; }
+.rowsep { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 20px; }
+.rings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; text-align: center; }
+.ring .rl { font-family: var(--display); font-weight: 600; font-size: 12.5px; margin-bottom: 6px; min-height: 4em; display: flex; align-items: flex-end; justify-content: center; text-wrap: balance; }
+.ring svg { width: 100%; max-width: 104px; height: auto; }
+.ring .rs { color: var(--muted); font-size: 11.5px; margin-top: 4px; }
+.lead { font-size: 13px; color: var(--ink2); margin: 0 0 14px; max-width: 34em; }
+.chart { position: relative; width: 100%; }
+.chart.h260 { height: 260px; } .chart.h300 { height: 300px; } .chart.h340 { height: 340px; } .chart.h420 { height: 420px; } .chart.h220 { height: 220px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 8px; font-size: 12px; color: var(--ink2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.legend i.ln { height: 3px; width: 14px; vertical-align: 3px; border-radius: 2px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 12px; color: var(--ink2); }
+.pill b { color: var(--ink); font-weight: 600; }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.note { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; color: var(--ink2); }
+.note b { color: var(--ink); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 18px; }
+.fact { background: var(--soft); border-radius: 14px; padding: 12px 14px; }
+.fact .fv { font-family: var(--display); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
+.fact .fl { font-size: 12px; color: var(--ink2); }
+
+/* tabel */
+.tw { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+table.t th { position: sticky; top: 0; background: var(--soft); text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink2); padding: 0; white-space: nowrap; }
+table.t th button { all: unset; cursor: pointer; display: block; padding: 9px 10px; width: 100%; box-sizing: border-box; }
+table.t th.num button { text-align: right; }
+table.t th button:focus-visible { outline: 2px solid var(--s1); outline-offset: -2px; }
+table.t td { padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+table.t td.num { text-align: right; white-space: nowrap; }
+table.t tr:hover td { background: var(--soft); }
+table.t tfoot td { font-weight: 600; background: var(--soft); }
+table.t .lk { all: unset; cursor: pointer; font-weight: 500; }
+table.t .lk:hover { color: var(--t1); text-decoration: underline; }
+.dim { color: var(--muted); font-size: 11.5px; display: block; }
+.bar { display: inline-block; height: 6px; border-radius: 3px; background: var(--s1); vertical-align: middle; margin-right: 6px; min-width: 2px; }
+.bar.g { background: var(--s0); }
+.badge { display: inline-block; background: var(--soft); border: 1px solid var(--line); border-radius: 7px; padding: 1px 7px; font-size: 11.5px; white-space: nowrap; margin: 1px 2px 1px 0; }
+.badge.d { background: var(--w1); border-color: transparent; color: var(--t1); font-weight: 600; }
+.ttools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.ttools input[type="search"] { border: 1px solid var(--line2); background: var(--soft); border-radius: 10px; padding: 7px 10px; min-width: 0; width: 220px; max-width: 100%; }
+.ttools .cnt { color: var(--muted); font-size: 12px; }
+.morebtn { margin-top: 8px; border: 1px solid var(--line2); background: var(--card); border-radius: 10px; padding: 7px 12px; font-size: 12.5px; font-weight: 500; }
+details.nums { margin-top: 10px; }
+details.nums summary { cursor: pointer; color: var(--ink2); font-size: 12.5px; font-weight: 500; }
+details.nums .tw { margin-top: 8px; }
+.empty { color: var(--muted); padding: 28px 8px; text-align: center; font-size: 13px; }
+
+/* kelola data */
+.btn { border: 1px solid var(--line2); background: var(--card); border-radius: 11px; padding: 9px 14px; font-weight: 600; font-size: 13px; }
+.btn.p { background: var(--s1); border-color: var(--s1); color: #fff; }
+.btn.danger { color: var(--bad); }
+.btn.sm { padding: 4px 9px; font-size: 12px; font-weight: 500; border-radius: 8px; }
+.btn[disabled] { opacity: .5; cursor: default; }
+.drop { border: 1.5px dashed var(--line2); border-radius: 14px; padding: 16px; background: var(--soft); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.drop.over { border-color: var(--s1); background: var(--w1); }
+.drop b { font-family: var(--display); font-weight: 600; }
+.drop span { color: var(--ink2); font-size: 12.5px; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.save { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.ok { background: var(--good); } .dot.wait { background: var(--warn); } .dot.err { background: var(--bad); }
+.log { margin-top: 12px; font-size: 12.5px; color: var(--ink2); display: flex; flex-direction: column; gap: 4px; }
+.log .e { color: var(--bad); }
+.ed { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, .8fr) auto; gap: 6px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); font-size: 12.5px; }
+.ed input, .ed select { border: 1px solid var(--line2); background: var(--soft); border-radius: 8px; padding: 6px 8px; min-width: 0; width: 100%; }
+.foot { color: var(--muted); font-size: 12px; text-align: center; }
+.tip { position: fixed; z-index: 60; pointer-events: none; background: var(--ink); color: var(--card); border-radius: 9px; padding: 7px 10px; font-size: 12px; max-width: 240px; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+.tip b { font-weight: 600; }
+
+@media (max-width: 1080px) {
+  .frow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .reset { grid-column: 1 / -1; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g2, .g23 { grid-template-columns: minmax(0, 1fr); }
+  .g13 { grid-template-columns: minmax(0, 1fr); }
+  .rings { max-width: 420px; margin: 0 auto; }
+}
+@media (max-width: 620px) {
+  .pg { gap: 12px; }
+  .card { padding: 16px; border-radius: 16px; }
+  .top h1 { font-size: 22px; }
+  .frow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .frow { position: relative; }
+  .ms { position: static; }
+  .pop, .ms.right .pop { left: 0; right: 0; top: auto; width: auto; max-width: none; margin-top: 6px; }
+  .kpi .big { font-size: 28px; }
+  .kpi { min-height: 112px; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .hide-s { display: none; }
+  .ed { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .chart.h420 { height: 380px; }
+  .ttools input[type="search"] { width: 100%; }
+}
+@media (max-width: 420px) {
+  .kpis { grid-template-columns: minmax(0, 1fr); }
+}
+/* layar sentuh (HP, iPad): kolom isian 16px supaya iPhone/iPad tidak memperbesar layar saat mengetik, sasaran sentuh lebih besar */
+@media (pointer: coarse) {
+  .pg input[type="search"], .pg input[type="text"], .pg select { font-size: 16px; }
+  .chip { padding: 8px 13px; }
+  .pop li label { padding: 10px 6px; }
+  .pop .acts button, .btn.sm { padding: 8px 12px; }
+  table.t th button { padding: 11px 10px; }
+  .morebtn { padding: 10px 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .pg * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="pg" id="pg">
+  <header class="top">
+    <div>
+      <h1>Polreg Sulut</h1>
+      <p id="periode">Pendaftaran kendaraan baru roda empat · Sulawesi Utara</p>
+    </div>
+    <nav class="nav" aria-label="Lompat ke bagian">
+      <button type="button" data-go="sec-tren">Tren</button>
+      <button type="button" data-go="sec-cabang">Per cabang</button>
+      <button type="button" data-go="sec-segmen">Segmen</button>
+      <button type="button" data-go="sec-merek">Merek</button>
+      <button type="button" data-go="sec-nd">Nama dagang</button>
+      <button type="button" data-go="sec-wil">Wilayah</button>
+      <button type="button" data-go="sec-data">Kelola data</button>
+    </nav>
+  </header>
+
+  <section class="card filters" aria-label="Filter">
+    <div class="chips" id="bulanChips"></div>
+    <div class="frow" id="frow"></div>
+    <div class="fnote" id="fnote"></div>
+  </section>
+
+  <section class="kpis" id="kpis" aria-label="Ringkasan"></section>
+
+  <section class="card" id="sec-tren">
+    <h2>Tren bulanan dan pangsa pasar</h2>
+    <p class="sub">Unit terdaftar per bulan menurut merek, mengikuti filter di atas</p>
+    <div class="g13">
+      <div class="blk">
+        <p class="lead" id="trenLead"></p>
+        <div class="rings" id="rings"></div>
+      </div>
+      <div class="blk">
+        <div class="legend" id="trenLegend"></div>
+        <div class="chart h300"><canvas id="chTren" role="img" aria-label="Diagram batang bertumpuk unit terdaftar per bulan menurut merek"></canvas></div>
+        <details class="nums"><summary>Lihat angka per bulan</summary><div id="tbTren"></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-cabang">
+    <h2>Penjualan per cabang</h2>
+    <p class="sub">DO List dicocokkan dengan Polreg lewat nomor rangka, jadi setiap unit Daihatsu yang terdaftar bisa dilacak ke cabang penjualnya</p>
+    <div class="pills" id="cabPills"></div>
+    <div class="facts" id="cabFacts"></div>
+    <div class="g23">
+      <div class="blk">
+        <h3 class="mini">Daihatsu terdaftar per kota/kabupaten, menurut cabang penjual</h3>
+        <div class="legend" id="cabLegend"></div>
+        <div class="chart h420"><canvas id="chCabWil" role="img" aria-label="Diagram batang mendatar Daihatsu terdaftar per kota atau kabupaten menurut cabang penjual"></canvas></div>
+      </div>
+      <div class="blk">
+        <h3 class="mini">Berapa yang dijual tiap cabang di tiap kota/kabupaten</h3>
+        <div id="tbCabWil"></div>
+      </div>
+    </div>
+    <div class="g2 rowsep">
+      <div class="blk">
+        <h3 class="mini">Per nama dagang Daihatsu</h3>
+        <div class="chart h300"><canvas id="chCabNd" role="img" aria-label="Diagram batang mendatar unit Daihatsu per nama dagang menurut cabang penjual"></canvas></div>
+      </div>
+      <div class="blk">
+        <h3 class="mini">Per kecamatan</h3>
+        <div id="tbCabKec"></div>
+      </div>
+    </div>
+    <div class="g2 rowsep">
+      <div class="blk">
+        <h3 class="mini">DO per bulan tiap cabang</h3>
+        <p class="sub2">Menurut tanggal DO di DO List; tidak mengikuti filter di atas</p>
+        <div class="chips" id="doYears" style="margin-bottom:8px"></div>
+        <div class="legend" id="doLegend"></div>
+        <div class="chart h260"><canvas id="chDo" role="img" aria-label="Diagram garis jumlah DO per bulan tiap cabang"></canvas></div>
+      </div>
+      <div class="blk">
+        <h3 class="mini">Perbandingan antarcabang</h3>
+        <p class="sub2">Angka Polreg mengikuti filter; angka DO menurut DO List</p>
+        <div id="tbDo"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-segmen">
+    <h2>Segmen kendaraan</h2>
+    <p class="sub">Daihatsu dibandingkan merek lain di tiap segmen</p>
+    <div class="g2">
+      <div class="blk">
+        <div class="legend"><span><i style="background:var(--s1)"></i>Daihatsu</span><span><i style="background:var(--s0)"></i>Merek lain</span></div>
+        <div class="chart h340"><canvas id="chSeg" role="img" aria-label="Diagram batang mendatar unit per segmen, Daihatsu dan merek lain"></canvas></div>
+      </div>
+      <div class="blk" id="tbSeg"></div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-merek">
+    <h2>Merek</h2>
+    <p class="sub">Pangsa tiap merek dan nama dagang terlarisnya</p>
+    <div class="g13" style="align-items:start">
+      <div class="blk">
+        <div class="chart h220"><canvas id="chMerek" role="img" aria-label="Diagram donat pangsa merek"></canvas></div>
+        <div class="legend" id="merekLegend" style="margin-top:10px;justify-content:center"></div>
+      </div>
+      <div class="blk" id="tbMerek"></div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-nd">
+    <h2>Nama dagang</h2>
+    <p class="sub">Model terlaris pada filter saat ini</p>
+    <div class="g2">
+      <div class="blk">
+        <div class="legend"><span><i style="background:var(--s1)"></i>Daihatsu</span><span><i style="background:var(--s0)"></i>Merek lain</span></div>
+        <div class="chart h420"><canvas id="chNd" role="img" aria-label="Diagram batang mendatar lima belas nama dagang terlaris"></canvas></div>
+      </div>
+      <div class="blk" id="tbNd"></div>
+    </div>
+  </section>
+
+  <section class="card" id="sec-wil">
+    <h2>Kota/kabupaten</h2>
+    <p class="sub">Klik nama untuk menjadikannya filter</p>
+    <div id="tbWil"></div>
+  </section>
+  <div class="g2">
+    <section class="card" id="sec-kec">
+      <h2>Kecamatan</h2>
+      <p class="sub">Total pasar, pangsa Daihatsu, dan merek teratas</p>
+      <div id="tbKec"></div>
+    </section>
+    <section class="card" id="sec-kel">
+      <h2>Kelurahan / desa</h2>
+      <p class="sub">Dibaca dari alamat pada data Polreg</p>
+      <div id="tbKel"></div>
+    </section>
+  </div>
+
+  <section class="card" id="sec-data">
+    <h2>Kelola data</h2>
+    <p class="sub">Tambah berkas bulan berikutnya atau DO List cabang lain; bulan atau nomor rangka yang sama diganti, bukan digandakan</p>
+    <div class="note" id="devNote" style="margin-bottom:14px"></div>
+    <div class="save" role="status"><span class="dot" id="saveDot"></span><span id="saveTxt">Memuat data…</span></div>
+    <div class="g2">
+      <div class="blk">
+        <div class="drop" id="dropP">
+          <b>Berkas Polreg bulanan</b>
+          <span>Berkas .xlsx mentah dari Samsat (kolom samsat, nopol, alamat, merk_kb, type_kb, no_rangka…) atau berkas gabungan. Boleh beberapa sekaligus.</span>
+          <label class="btn p" for="fileP">Pilih berkas Polreg</label>
+          <input class="vh" type="file" id="fileP" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" multiple>
+        </div>
+        <h3 class="mini" style="margin-top:16px">Bulan yang tersimpan</h3>
+        <div id="tbBulan"></div>
+      </div>
+      <div class="blk">
+        <div class="drop" id="dropD">
+          <b>DO List cabang</b>
+          <span>Ekspor DO List dari DSC (kolom BusinessAreaCode, Noka, TransactionDateTime…). Unggah DO List cabang lain supaya perbandingan antarcabang lengkap.</span>
+          <label class="btn p" for="fileD">Pilih DO List</label>
+          <input class="vh" type="file" id="fileD" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" multiple>
+        </div>
+        <h3 class="mini" style="margin-top:16px">Cabang yang punya DO List</h3>
+        <div id="tbCab"></div>
+      </div>
+    </div>
+    <div class="rowsep">
+      <h3 class="mini">Tipe yang belum punya nama dagang</h3>
+      <p class="sub2">Isi nama dagang dan segmennya; berlaku untuk semua unit bertipe sama</p>
+      <div id="edTipe"></div>
+    </div>
+    <div class="rowsep" style="display:flex;flex-wrap:wrap;gap:8px">
+      <button type="button" class="btn p" id="btnJson" hidden>Unduh polreg.json (untuk GitHub)</button>
+      <button type="button" class="btn" id="btnApp" hidden>Unduh aplikasi offline (.html)</button>
+      <button type="button" class="btn" id="btnXlsx" hidden>Unduh data gabungan (.xlsx)</button>
+      <button type="button" class="btn danger" id="btnReset">Kembalikan ke data bawaan</button>
+      <span id="resetAsk" hidden style="display:inline-flex;gap:6px;align-items:center">Semua unggahan dihapus. Lanjut?
+        <button type="button" class="btn sm danger" id="btnResetYes">Ya, kembalikan</button>
+        <button type="button" class="btn sm" id="btnResetNo">Batal</button></span>
+    </div>
+    <div class="log" id="log" aria-live="polite"></div>
+  </section>
+  <p class="foot" id="foot"></p>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<div id="bootMsg" role="status">Memuat data Polreg…</div>
+<script id="lib-chart" src="lib/chart.umd.min.js"></script>
+<script id="lib-xlsx" src="lib/xlsx.full.min.js"></script>
+<script id="app-core">
+/* Logika inti Polreg — dipakai saat membangun data bawaan (Node) dan di dalam halaman (browser). */
+var PolregCore = (function () {
+  var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  var BULAN_ALIAS = { jan: 1, januari: 1, feb: 2, februari: 2, mar: 3, maret: 3, apr: 4, april: 4, mei: 5, may: 5, jun: 6, juni: 6, jul: 7, juli: 7, agt: 8, agu: 8, agust: 8, agustus: 8, aug: 8, sep: 9, sept: 9, september: 9, okt: 10, oct: 10, oktober: 10, nov: 11, november: 11, nop: 11, des: 12, dec: 12, desember: 12 };
+
+  var WILAYAH_ALIAS = {
+    'MANADO': 'Manado', 'MINAHASA': 'Minahasa', 'BITUNG': 'Bitung', 'SANGIHE': 'Sangihe', 'KEP. SANGIHE': 'Sangihe', 'KEP SANGIHE': 'Sangihe', 'KEPULAUAN SANGIHE': 'Sangihe',
+    'KOTA': 'Kotamobagu', 'KOTAMOBAGU': 'Kotamobagu', 'MINSEL': 'Minsel', 'MINAHASA SELATAN': 'Minsel', 'MINUT': 'Minut', 'MINAHASA UTARA': 'Minut',
+    'TOMOHON': 'Tomohon', 'MITRA': 'Mitra', 'MINAHASA TENGGARA': 'Mitra', 'BOLMONG': 'Bolmong', 'BOLAANG MONGONDOW': 'Bolmong',
+    'BOLMUT': 'Bolmut', 'BOLAANG MONGONDOW UTARA': 'Bolmut', 'BOLTIM': 'Boltim', 'BOLAANG MONGONDOW TIMUR': 'Boltim',
+    'BOLSEL': 'Bolsel', 'BOLAANG MONGONDOW SELATAN': 'Bolsel', 'TALAUD': 'Talaud', 'KEP. TALAUD': 'Talaud', 'KEP TALAUD': 'Talaud', 'KEPULAUAN TALAUD': 'Talaud',
+    'SITARO': 'Sitaro', 'KEP. SITARO': 'Sitaro', 'KEP SITARO': 'Sitaro'
+  };
+  function normWilayah(s) {
+    var k = String(s == null ? '' : s).trim().toUpperCase().replace(/\s+/g, ' ');
+    if (WILAYAH_ALIAS[k]) return WILAYAH_ALIAS[k];
+    if (!k) return 'Tidak diketahui';
+    return k.charAt(0) + k.slice(1).toLowerCase();
+  }
+
+  function clean(s) { return String(s == null ? '' : s).toUpperCase().replace(/\s+/g, ' ').trim(); }
+
+  /* Kelurahan & kecamatan dibaca dari kolom alamat (penanda KEL./DESA/KAMPUNG dan KEC.). */
+  var STOP = '(?:LK|LINGK|LINGKUNGAN|LING|JAGA|RT|RW|RT\\/RW|KEC|KECAMATAN|DUSUN|DSN|BLOK|NO|NOMOR|JL|JALAN|KAB|KOTA|PERUM)';
+  var RE_KEC = new RegExp('\\bKEC(?:AMATAN)?\\b[.\\s:]*([A-Z][A-Z0-9 \'’.]*?)(?=\\s*(?:-|,|;|\\(|$)|\\s+(?:KAB|KOTA|PROV|SULAWESI|SULUT)\\b)');
+  var RE_KEL = new RegExp('\\b(?:KEL(?:URAHAN)?|DESA|DS|KAMPUNG|KAMP)\\b[.\\s:]*([A-Z][A-Z0-9 \'’]*?)(?=\\s*(?:-|,|;|\\.|\\(|$)|\\s+' + STOP + '\\b)');
+  var TAIL = [' - BOLAANG MONGONDOW UTARA', ' - BOLAANG MONGONDOW TIMUR', ' - BOLAANG MONGONDOW SELATAN', ' - BOLAANG MONGONDOW', ' - MINAHASA UTARA', ' - MINAHASA SELATAN', ' - MINAHASA TENGGARA', ' - MINAHASA',
+    ' BOLAANG MONGONDOW UTARA', ' BOLAANG MONGONDOW TIMUR', ' BOLAANG MONGONDOW SELATAN', ' BOLAANG MONGONDOW', ' MINAHASA UTARA', ' MINAHASA SELATAN', ' MINAHASA TENGGARA', ' MINAHASA',
+    ' KEPULAUAN SANGIHE', ' KEP. SANGIHE', ' KEPULAUAN TALAUD', ' KEP. TALAUD', ' KEP. SITARO', ' KOTAMOBAGU', ' MANADO', ' BITUNG', ' TOMOHON', ' SANGIHE', ' TALAUD', ' SITARO'];
+  function parseAlamat(alamat) {
+    var a = clean(alamat).replace(/KEL\.(?=\S)/g, 'KEL. ').replace(/KEC\.(?=\S)/g, 'KEC. ').replace(/DESA\.(?=\S)/g, 'DESA ').replace(/(\d)(KEC|KEL)\b/g, '$1 $2');
+    var kec = '', kel = '';
+    var m = a.match(RE_KEC);
+    if (m) {
+      kec = m[1].replace(/[.\s]+$/, '').trim();
+      for (var i = 0; i < TAIL.length; i++) {
+        var t = TAIL[i].replace(/^ - /, ' ');
+        if (kec.length > t.length && kec.slice(-t.length) === t) { kec = kec.slice(0, -t.length).trim(); break; }
+      }
+    }
+    var all = [], re = new RegExp(RE_KEL.source, 'g'), mm;
+    while ((mm = re.exec(a))) all.push(mm[1].trim());
+    if (all.length) kel = all[all.length - 1];
+    if (!kel && m) {
+      /* tanpa penanda: ambil kata sebelum KEC. */
+      var before = a.slice(0, m.index).replace(/RT\s*\/?\s*RW[.\s:]*[\d\-\/ ]*/g, ' ').replace(/[,.\-]+\s*$/, '').trim();
+      var parts = before.split(/\s{2,}|,|\s-\s/);
+      kel = (parts[parts.length - 1] || '').trim();
+      kel = kel.replace(new RegExp('^.*\\b' + STOP + '\\b[.\\s]*[IVXLC\\d]*\\s*'), '').trim();
+    }
+    return { kel: kel || 'TIDAK TERBACA', kec: kec || 'TIDAK TERBACA' };
+  }
+
+  /* ---- Nama dagang & segmen ---- */
+  /* kamus: { "MEREK|TIPE": [namaDagang, segmen] } — padanan persis dari data sebelumnya. */
+  /* RULES: padanan lewat kode sasis / nama model, supaya varian baru otomatis dapat nama. */
+  var RULES = [
+    ['DAIHATSU', /S40[0-9]RP|S10[0-9]RP|GRAN ?MAX.*(PU|PICK)/, 'DAIHATSU GRAN MAX PICK UP', 'Pick Up'],
+    ['DAIHATSU', /S40[0-9]RV-B|BLIND ?VAN|GRAN ?MAX.*BV/, 'DAIHATSU GRAN MAX BLIND VAN', 'Van / Minibus'],
+    ['DAIHATSU', /S40[0-9]RV-Z|GRAN ?MAX.*MB/, 'DAIHATSU GRAN MAX MINIBUS', 'Van / Minibus'],
+    ['DAIHATSU', /SIGRA|B40[01]RS/, 'DAIHATSU SIGRA', 'LCGC'], ['DAIHATSU', /AYLA|A35[01]RS/, 'DAIHATSU AYLA', 'LCGC'],
+    ['DAIHATSU', /TERIOS|F800RG/, 'DAIHATSU TERIOS', 'Low SUV'], ['DAIHATSU', /ROCKY|A2[05][0-2]RS/, 'DAIHATSU ROCKY', 'Low SUV'],
+    ['DAIHATSU', /XENIA|W10[01]RG/, 'DAIHATSU XENIA', 'LMPV'], ['DAIHATSU', /LUXIO|S402RG/, 'DAIHATSU LUXIO', 'Van / Minibus'], ['DAIHATSU', /SIRION|M80[0-9]RS/, 'DAIHATSU SIRION', 'Hatchback'],
+    ['TOYOTA', /CALYA|B401RA/, 'TOYOTA CALYA', 'LCGC'], ['TOYOTA', /AGYA|A35[01]RA/, 'TOYOTA AGYA', 'LCGC'], ['TOYOTA', /RUSH|F800RE/, 'TOYOTA RUSH', 'Low SUV'],
+    ['TOYOTA', /VELOZ|W102RE/, 'TOYOTA VELOZ', 'LMPV'], ['TOYOTA', /AVANZA|W10[01]RE/, 'TOYOTA AVANZA', 'LMPV'], ['TOYOTA', /RAIZE|A25[01]RA/, 'TOYOTA RAIZE', 'Low SUV'],
+    ['TOYOTA', /ZENIX|MAG[AH]10R/, 'TOYOTA KIJANG INNOVA ZENIX', 'MPV Medium'], ['TOYOTA', /KIJANG INNOVA|INNOVA/, 'TOYOTA KIJANG INNOVA', 'MPV Medium'],
+    ['TOYOTA', /HILUX.*(DOUBLE|D-?CAB|DC\b|4X4)/, 'TOYOTA HILUX DOUBLE CABIN', 'Double Cabin'], ['TOYOTA', /HILUX/, 'TOYOTA HILUX PICK UP', 'Pick Up'],
+    ['TOYOTA', /FORTUNER/, 'TOYOTA FORTUNER', 'Medium SUV'], ['TOYOTA', /YARIS CROSS|NYC200R/, 'TOYOTA YARIS CROSS', 'Low SUV'], ['TOYOTA', /YARIS/, 'TOYOTA YARIS', 'Hatchback'],
+    ['TOYOTA', /HI ?ACE/, 'TOYOTA HIACE', 'Van / Minibus'], ['TOYOTA', /VOXY/, 'TOYOTA VOXY', 'MPV Medium'], ['TOYOTA', /DYNA/, 'TOYOTA DYNA', 'Truck'],
+    ['TOYOTA', /ALPHARD/, 'TOYOTA ALPHARD', 'MPV Medium'], ['TOYOTA', /VIOS/, 'TOYOTA VIOS', 'Sedan'], ['TOYOTA', /COROLLA ALTIS/, 'TOYOTA COROLLA ALTIS', 'Sedan'],
+    ['HONDA', /BRIO RS/, 'HONDA BRIO', 'Hatchback'], ['HONDA', /BRIO/, 'HONDA BRIO', 'LCGC'], ['HONDA', /WR-?V|DG4[78]/, 'HONDA WR-V', 'Low SUV'],
+    ['HONDA', /HR-?V|RV58/, 'HONDA HR-V', 'Low SUV'], ['HONDA', /BR-?V|DG3/, 'HONDA BR-V', 'Low SUV'], ['HONDA', /CITY HB|CITY HATCH/, 'HONDA CITY HATCHBACK', 'Hatchback'],
+    ['HONDA', /RP88|STEP ?WGN/, 'HONDA STEP WGN E:HEV', 'MPV Medium'], ['HONDA', /CR-?V|RS[35]8/, 'HONDA CR-V', 'Medium SUV'],
+    ['SUZUKI', /AEV415|CARRY/, 'SUZUKI CARRY PICK UP', 'Pick Up'], ['SUZUKI', /A3L415F|FRONX/, 'SUZUKI FRONX', 'Low SUV'], ['SUZUKI', /XL7/, 'SUZUKI XL7', 'Low SUV'],
+    ['SUZUKI', /ARK415F|ERTIGA/, 'SUZUKI ERTIGA', 'LMPV'], ['SUZUKI', /GC ?415|APV/, 'SUZUKI APV', 'LMPV'], ['SUZUKI', /6G5VX/, 'SUZUKI JIMNY 3 DOOR', 'Low SUV'], ['SUZUKI', /6N5VX|JIMNY/, 'SUZUKI JIMNY', 'Low SUV'],
+    ['SUZUKI', /PQ5FX|GRAND VITARA/, 'SUZUKI GRAND VITARA', 'Medium SUV'],
+    ['MITSUBISHI', /XPANDER CROSS/, 'MITSUBISHI XPANDER CROSS', 'LMPV'], ['MITSUBISHI', /^XM |XPANDER/, 'MITSUBISHI XPANDER', 'LMPV'], ['MITSUBISHI', /^DST |DESTINATOR/, 'MITSUBISHI DESTINATOR', 'Medium SUV'],
+    ['MITSUBISHI', /^XFC |XFORCE/, 'MITSUBISHI XFORCE', 'Low SUV'], ['MITSUBISHI', /TRITON/, 'MITSUBISHI TRITON', 'Double Cabin'], ['MITSUBISHI', /CANTER/, 'MITSUBISHI CANTER', 'Truck'],
+    ['MITSUBISHI', /PAJERO/, 'MITSUBISHI PAJERO SPORT', 'Medium SUV'], ['MITSUBISHI', /L300/, 'MITSUBISHI L300', 'Pick Up'], ['MITSUBISHI', /FIGHTER/, 'MITSUBISHI FUSO FIGHTER', 'Truck'],
+    ['ISUZU', /PHR54|TRAGA/, 'ISUZU TRAGA', 'Pick Up'], ['ISUZU', /^N[ML]R|ELF/, 'ISUZU ELF', 'Truck'], ['ISUZU', /TFS|D-?MAX/, 'ISUZU D-MAX', 'Double Cabin'], ['ISUZU', /^[FG]V[RZM]|GIGA/, 'ISUZU GIGA', 'Truck'],
+    ['HINO', /XZU|WU34|DUTRO/, 'HINO DUTRO', 'Truck'], ['HINO', /^[FS][GLM]8|RANGER/, 'HINO RANGER', 'Truck'],
+    ['BYD', /^EQE-/, 'BYD EQE-FWD', 'EV'], ['BYD', /^EQ-|SEAGULL/, 'BYD SEAGULL', 'EV'], ['BYD', /^UKE-|SEALION/, 'BYD SEALION 7', 'EV'], ['BYD', /^MEH-/, 'BYD M6 PHEV', 'MPV Medium'], ['BYD', /^ME-/, 'BYD M6', 'EV'],
+    ['BYD', /SC2E|ATTO 3/, 'BYD ATTO 3', 'EV'], ['BYD', /SEAL/, 'BYD SEAL', 'EV'], ['BYD', /DOLPHIN/, 'BYD DOLPHIN', 'EV'],
+    ['WULING', /310SR?|ALVEZ/, 'WULING ALVEZ', 'Low SUV'], ['WULING', /E230R|AIR ?EV/, 'WULING AIR EV', 'EV'], ['WULING', /E260R.*LV0YD|BINGUO/, 'WULING BINGUO EV', 'EV'], ['WULING', /E260R/, 'WULING AIR EV', 'EV'],
+    ['WULING', /EQ100R|CLOUD/, 'WULING CLOUD EV', 'EV'], ['WULING', /520M|DARION/, 'WULING DARION', 'LMPV'], ['WULING', /CN113PR|FORMO/, 'WULING FORMO MAX', 'Van / Minibus'], ['WULING', /350V|MITRA/, 'WULING MITRA EV', 'EV'],
+    ['WULING', /CONFERO/, 'WULING CONFERO', 'LMPV'], ['WULING', /CORTEZ/, 'WULING CORTEZ', 'LMPV'], ['WULING', /ALMAZ/, 'WULING ALMAZ RS', 'Low SUV'], ['WULING', /520S/, 'WULING 520S', 'Van / Minibus'],
+    ['HYUNDAI', /CARTENZ/, 'HYUNDAI STARGAZER CARTENZ', 'LMPV'], ['HYUNDAI', /STARGAZER|^KS /, 'HYUNDAI STARGAZER', 'LMPV'], ['HYUNDAI', /CRETA N LINE/, 'HYUNDAI CRETA N LINE', 'Low SUV'], ['HYUNDAI', /CRETA/, 'HYUNDAI CRETA', 'Low SUV'],
+    ['HYUNDAI', /PALISADE/, 'HYUNDAI PALISADE', 'Medium SUV'], ['HYUNDAI', /SANTA FE/, 'HYUNDAI SANTA FE', 'Medium SUV'], ['HYUNDAI', /KONA/, 'HYUNDAI KONA', 'EV'],
+    ['CHERY', /TIGGO CROSS/, 'CHERY TIGGO CROSS', 'Low SUV'], ['CHERY', /TIGGO 8/, 'CHERY TIGGO 8', 'Medium SUV'], ['CHERY', /TIGGO 9/, 'CHERY TIGGO 9', 'Medium SUV'], ['CHERY', /ICAR/, 'CHERY ICAR 03', 'Low SUV'],
+    ['CHERY', /OMODA E5/, 'CHERY OMODA E5', 'EV'], ['CHERY', /OMODA 5/, 'CHERY OMODA 5', 'Low SUV'], ['CHERY', /J6/, 'CHERY J6', 'LMPV'],
+    ['CITROEN', /E-C3/, 'CITROEN E-C3', 'EV'], ['CITROEN', /AIRCROSS/, 'CITROEN C3 AIRCROSS', 'Hatchback'], ['CITROEN', /C3/, 'CITROEN C3', 'Hatchback'],
+    ['MG', /4 EV/, 'MG 4 EV', 'EV'], ['MG', /S5 ?EV/, 'MG S5 EV', 'EV'], ['MG', /ZS EV/, 'MG ZS EV', 'EV'], ['MG', /^ZS/, 'MG ZS', 'Low SUV'], ['MG', /^HS/, 'MG HS', 'Medium SUV'],
+    ['BAJAJ', /MAXIMA/, 'BAJAJ MAXIMA', 'Roda Tiga'], ['BAJAJ', /RE/, 'BAJAJ RE', 'Roda Tiga'],
+    ['JAECOO', /J5/, 'JAECOO J5 EV', 'EV'], ['JAECOO', /J8/, 'JAECOO J8 PHEV', 'Medium SUV'], ['JAECOO', /7 PHEV|J7/, 'JAECOO J7 PHEV', 'Medium SUV'],
+    ['DENZA', /MRE|D9/, 'DENZA D9', 'EV'], ['AION', /^UT/, 'AION UT', 'EV'], ['AION', /^V /, 'AION V', 'EV'], ['AION', /HYPTEC/, 'AION HYPTEC', 'EV'],
+    ['JETOUR', /T2/, 'JETOUR T2', 'Low SUV'], ['BAIC', /BJ-?40/, 'BAIC BJ-40 PLUS', 'Medium SUV'], ['UD TRUCKS', /./, 'UD TRUCKS QUESTER', 'Truck'], ['FAW', /./, 'FAW TRUCK', 'Truck']
+  ];
+  function namaDagang(merek, tipe, kamus, jenis) {
+    var M = clean(merek), T = clean(tipe);
+    var hit = kamus && kamus[M + '|' + T];
+    if (hit) return { nd: hit[0], seg: hit[1], src: 'kamus' };
+    for (var i = 0; i < RULES.length; i++) {
+      if (RULES[i][0] === M && RULES[i][1].test(T)) return { nd: RULES[i][2], seg: RULES[i][3], src: 'aturan' };
+    }
+    var first = (T.split(/[\s(]/)[0] || T || '?');
+    var seg = 'Lainnya';
+    if (/BARANG/.test(clean(jenis))) seg = 'Truck';
+    return { nd: (M + ' ' + first).trim(), seg: seg, src: 'kode' };
+  }
+
+  function toYmd(v) {
+    if (v == null || v === '') return '';
+    if (v instanceof Date) {
+      if (isNaN(v)) return '';
+      return v.getFullYear() + '-' + ('0' + (v.getMonth() + 1)).slice(-2) + '-' + ('0' + v.getDate()).slice(-2);
+    }
+    if (typeof v === 'number') { /* nomor seri tanggal Excel */
+      var d = new Date(Math.round((v - 25569) * 86400000));
+      return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+    }
+    var s = String(v).trim(), m;
+    if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
+    if ((m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/))) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
+    return '';
+  }
+  function ymFromName(name) {
+    var s = String(name || '').toLowerCase();
+    var y = (s.match(/20\d{2}/) || [])[0];
+    var toks = s.replace(/[^a-z]+/g, ' ').trim().split(' '), mo = 0;
+    /* berkas gabungan "Jan-Agt" bukan satu bulan */
+    var found = toks.filter(function (t) { return BULAN_ALIAS[t]; });
+    if (found.length === 1) mo = BULAN_ALIAS[found[0]];
+    if (y && mo) return y + '-' + ('0' + mo).slice(-2);
+    return '';
+  }
+  function ymLabel(ym) { var p = ym.split('-'); return BULAN[+p[1] - 1] + ' ' + p[0]; }
+  function ymShort(ym) { var p = ym.split('-'); return BULAN[+p[1] - 1].slice(0, 3) + ' ' + p[0].slice(2); }
+
+  function headerIndex(hdr) {
+    var ix = {};
+    hdr.forEach(function (h, i) { var k = String(h == null ? '' : h).trim().toLowerCase().replace(/\s+/g, ' '); if (k && ix[k] == null) ix[k] = i; });
+    return ix;
+  }
+  function col(ix, names) { for (var i = 0; i < names.length; i++) if (ix[names[i]] != null) return ix[names[i]]; return -1; }
+
+  /* Berkas POLREG mentah (kolom samsat/nopol/alamat/merk_kb/type_kb/…): sheet induk + salinan per samsat, dedupe pakai no_rangka. */
+  function parsePolregSheets(sheets, fileName, kamus) {
+    var out = [], seen = {}, kinds = {}, skipped = 0;
+    Object.keys(sheets).forEach(function (sn) {
+      var rows = sheets[sn]; if (!rows || !rows.length) return;
+      var h = -1;
+      for (var i = 0; i < Math.min(rows.length, 6); i++) {
+        var ix0 = headerIndex(rows[i] || []);
+        if ((ix0['merk_kb'] != null && ix0['no_rangka'] != null) || (ix0['nomor rangka'] != null && ix0['merek'] != null && ix0['wilayah'] != null)) { h = i; break; }
+      }
+      if (h < 0) return;
+      var ix = headerIndex(rows[h]);
+      if (ix['merk_kb'] != null) {
+        kinds.mentah = 1;
+        var c = { samsat: col(ix, ['samsat']), alamat: col(ix, ['alamat']), merk: col(ix, ['merk_kb']), tipe: col(ix, ['type_kb']), jenis: col(ix, ['jenis_kb']), rangka: col(ix, ['no_rangka']), catat: col(ix, ['tgl_catat']), faktur: col(ix, ['tgl_faktur']) };
+        var ymFile = ymFromName(fileName);
+        for (var r = h + 1; r < rows.length; r++) {
+          var x = rows[r]; if (!x || !x[c.merk]) continue;
+          var rk = clean(x[c.rangka]); if (!rk) { skipped++; continue; }
+          if (seen[rk]) continue; seen[rk] = 1;
+          var ymd = toYmd(x[c.catat]) || toYmd(x[c.faktur]);
+          var ym = ymFile || ymd.slice(0, 7); if (!ym) { skipped++; continue; }
+          var al = parseAlamat(x[c.alamat]), nm = namaDagang(x[c.merk], x[c.tipe], kamus, x[c.jenis]);
+          out.push({ ym: ym, w: normWilayah(x[c.samsat]), kec: al.kec, kel: al.kel, m: clean(x[c.merk]), t: clean(x[c.tipe]), nd: nm.nd, sg: nm.seg, r: rk, k: nm.src === 'kode' ? 1 : 0 });
+        }
+      } else {
+        kinds.gabungan = 1;
+        var g = { bulan: col(ix, ['bulan']), tahun: col(ix, ['tahun']), w: col(ix, ['wilayah']), kel: col(ix, ['kelurahan']), kec: col(ix, ['kecamatan']), m: col(ix, ['merek']), t: col(ix, ['tipe']), nd: col(ix, ['nama dagang']), sg: col(ix, ['segmen']), rangka: col(ix, ['nomor rangka']), jenis: col(ix, ['jenis']) };
+        for (var q = h + 1; q < rows.length; q++) {
+          var y = rows[q]; if (!y || !y[g.m]) continue;
+          var mo = BULAN_ALIAS[String(y[g.bulan] || '').trim().toLowerCase()]; var th = String(y[g.tahun] || '').trim();
+          if (!mo || !/^20\d\d$/.test(th)) { skipped++; continue; }
+          var rk2 = clean(y[g.rangka]);
+          var key = rk2 || ('row' + sn + q); if (seen[key]) continue; seen[key] = 1;
+          var nd = clean(y[g.nd]), sg = String(y[g.sg] || '').trim();
+          if (!nd || !sg) { var n2 = namaDagang(y[g.m], y[g.t], kamus, g.jenis >= 0 ? y[g.jenis] : ''); nd = nd || n2.nd; sg = sg || n2.seg; }
+          out.push({ ym: th + '-' + ('0' + mo).slice(-2), w: normWilayah(y[g.w]), kec: clean(y[g.kec]) || 'TIDAK TERBACA', kel: clean(y[g.kel]) || 'TIDAK TERBACA', m: clean(y[g.m]), t: clean(y[g.t]), nd: nd, sg: sg, r: rk2, k: 0 });
+        }
+      }
+    });
+    return { rows: out, kinds: Object.keys(kinds), skipped: skipped };
+  }
+
+  /* DO List (ekspor DSC): satu baris = satu DO, kunci nomor rangka (Noka). */
+  var LEASING = [[/ASTRA CREDIT|^ACC$/, 'ACC'], [/ADIRA/, 'ADIRA'], [/MANDIRI UTAMA|^MUF$/, 'MUF'], [/MANDIRI TUNAS|^MTF$/, 'MTF'], [/TAFS|TOYOTA ASTRA|^DAF$|^DFS$/, 'DFS/TAFS'], [/INDOMOBIL/, 'IMFI'], [/BCA/, 'BCA']];
+  function leasingGroup(lg, leasing, salesType) {
+    var s = clean(lg) || clean(leasing);
+    if (!s || s === 'CASH' || (/CASH/.test(clean(salesType)) && !clean(leasing))) return 'CASH';
+    if (s === 'DAF') return 'DFS/TAFS';
+    for (var i = 0; i < LEASING.length; i++) if (LEASING[i][0].test(s)) return LEASING[i][1];
+    return s === 'NON MOU' ? 'NON MOU' : s;
+  }
+  var MODEL_ND = [[/GM PU|GRAN MAX PU/, 'DAIHATSU GRAN MAX PICK UP'], [/GM BV|GRAN MAX BV/, 'DAIHATSU GRAN MAX BLIND VAN'], [/GM MB|GRAN MAX MB/, 'DAIHATSU GRAN MAX MINIBUS'], [/SIGRA/, 'DAIHATSU SIGRA'], [/AYLA/, 'DAIHATSU AYLA'],
+    [/TERIOS/, 'DAIHATSU TERIOS'], [/XENIA/, 'DAIHATSU XENIA'], [/ROCKY/, 'DAIHATSU ROCKY'], [/LUXIO/, 'DAIHATSU LUXIO'], [/SIRION/, 'DAIHATSU SIRION']];
+  function doModel(model, material) {
+    var s = clean(model) + ' ' + clean(material);
+    for (var i = 0; i < MODEL_ND.length; i++) if (MODEL_ND[i][0].test(s)) return MODEL_ND[i][1];
+    return 'DAIHATSU ' + (clean(model) || 'LAINNYA');
+  }
+  function parseDOSheets(sheets) {
+    var out = [], seen = {}, cabang = {};
+    Object.keys(sheets).forEach(function (sn) {
+      var rows = sheets[sn]; if (!rows || !rows.length) return;
+      var h = -1;
+      for (var i = 0; i < Math.min(rows.length, 6); i++) { var ix0 = headerIndex(rows[i] || []); if (ix0['businessareacode'] != null && ix0['noka'] != null) { h = i; break; } }
+      if (h < 0) return;
+      var ix = headerIndex(rows[h]);
+      var c = { code: ix['businessareacode'], area: col(ix, ['businessarea']), noka: ix['noka'], model: col(ix, ['model']), mat: col(ix, ['material']), st: col(ix, ['salestype']), ls: col(ix, ['leasing']), lg: col(ix, ['leasinggroup']), tgl: col(ix, ['transactiondatetime']), kec: col(ix, ['kecamatan customer']), qty: col(ix, ['totaldo']) };
+      for (var r = h + 1; r < rows.length; r++) {
+        var x = rows[r]; if (!x) continue;
+        var code = clean(x[c.code]); if (!/^[A-Z]\d{3}$/.test(code)) continue;
+        var nk = clean(x[c.noka]); var d = toYmd(x[c.tgl]); if (!d) continue;
+        if (c.qty >= 0 && x[c.qty] != null && x[c.qty] !== '' && +x[c.qty] <= 0) continue;
+        var key = nk || (code + d + r); if (seen[key]) continue; seen[key] = 1;
+        cabang[code] = String(c.area >= 0 && x[c.area] ? x[c.area] : code).trim();
+        out.push({ c: code, d: d, nd: doModel(c.model >= 0 ? x[c.model] : '', c.mat >= 0 ? x[c.mat] : ''), lg: leasingGroup(c.lg >= 0 ? x[c.lg] : '', c.ls >= 0 ? x[c.ls] : '', c.st >= 0 ? x[c.st] : ''), kec: (c.kec >= 0 ? clean(x[c.kec]) : '') || 'TIDAK DIISI', r: nk });
+      }
+    });
+    return { rows: out, cabang: cabang };
+  }
+
+  /* Samakan ejaan kecamatan dengan yang sudah dikenal di wilayah itu (mis. "MAPANGET 0" -> "MAPANGET"). */
+  function snapKec(rows, known) {
+    rows.forEach(function (r) {
+      var set = known[r.w]; if (!set || set[r.kec]) return;
+      var best = '';
+      Object.keys(set).forEach(function (k) { if (k.length > best.length && r.kec.indexOf(k + ' ') === 0) best = k; });
+      if (best) r.kec = best;
+    });
+    return rows;
+  }
+  return { snapKec: snapKec, BULAN: BULAN, normWilayah: normWilayah, parseAlamat: parseAlamat, namaDagang: namaDagang, toYmd: toYmd, ymFromName: ymFromName, ymLabel: ymLabel, ymShort: ymShort, parsePolregSheets: parsePolregSheets, parseDOSheets: parseDOSheets, clean: clean };
+})();
+if (typeof module !== 'undefined') module.exports = PolregCore;
+
+</script>
+<script id="app-main" type="text/plain">
+(function () {
+  'use strict';
+  var C = PolregCore;
+  var $ = function (id) { return document.getElementById(id); };
+  var nf = new Intl.NumberFormat('id-ID');
+  function fmt(n) { return nf.format(n || 0); }
+  function pct(a, b, d) { if (!b) return '–'; d = d == null ? 1 : d; return (a / b * 100).toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }) + '%'; }
+  function h(tag, attrs, kids) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k]; if (v == null || v === false) return;
+      if (k === 'class') el.className = v; else if (k === 'text') el.textContent = v; else if (k === 'style') el.style.cssText = v;
+      else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v); else el.setAttribute(k, v === true ? '' : v);
+    });
+    (kids || []).forEach(function (c) { if (c == null) return; el.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return el;
+  }
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); return el; }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function count(rows, f) { var m = new Map(); for (var i = 0; i < rows.length; i++) { var k = f(rows[i]); m.set(k, (m.get(k) || 0) + 1); } return m; }
+  function groupBy(rows, f) { var m = new Map(); for (var i = 0; i < rows.length; i++) { var k = f(rows[i]), a = m.get(k); if (!a) m.set(k, a = []); a.push(rows[i]); } return m; }
+  function top(map) { var bk = '', bv = -1; map.forEach(function (v, k) { if (v > bv) { bv = v; bk = k; } }); return [bk, bv < 0 ? 0 : bv]; }
+  function sorted(map) { return Array.from(map.entries()).sort(function (a, b) { return b[1] - a[1] || String(a[0]).localeCompare(String(b[0])); }); }
+  var ACR = { BYD: 1, MG: 1, BMW: 1, GWM: 1, UD: 1, EV: 1, PHEV: 1, HEV: 1, 'WR-V': 1, 'HR-V': 1, 'BR-V': 1, 'CR-V': 1, XL7: 1, APV: 1, RS: 1, FAW: 1, BAIC: 1, AION: 1, 'D-MAX': 1, L300: 1, 'E:HEV': 1, LM: 1, HS: 1, ZS: 1, VS: 1, GT: 1, 'E-C3': 1, C3: 1, J5: 1, J6: 1, J7: 1, J8: 1, T2: 1, M6: 1, D9: 1, UT: 1, X1: 1, X3: 1, Z4: 1, G6: 1, EX2: 1, 'CX-5': 1, GLB: 1, 'BJ-40': 1 };
+  function title(s) { return String(s).split(' ').map(function (w) { return ACR[w] ? w : w.toLowerCase().replace(/(^|[\-\/(])([a-z])/g, function (_, a, b) { return a + b.toUpperCase(); }); }).join(' '); }
+
+  /* ---------- data ---------- */
+  var SEED = JSON.parse($('seed').textContent);
+  var OFFLINE = !!document.querySelector('meta[name="polreg-offline"]');
+  var WEB = !!document.querySelector('meta[name="polreg-web"]');
+  var BODY0 = $('pg').outerHTML + $('tip').outerHTML;
+  var SEED_TIME = (SEED.meta && (SEED.meta.savedAt || SEED.meta.builtAt)) || '';
+  var S = { P: [], D: [], cab: {}, over: {}, meta: {}, assetId: null };
+  var F = { ym: new Set(), w: new Set(), kk: new Set(), lk: new Set(), sg: new Set(), m: new Set(), nd: new Set() };
+  var DIMS = [['w', 'Kota / kabupaten'], ['kk', 'Kecamatan'], ['lk', 'Kelurahan / desa'], ['sg', 'Segmen'], ['m', 'Merek'], ['nd', 'Nama dagang']];
+  var X = { yms: [], cabs: [], major: [], color: {}, doYears: null, pset: null };
+  var SEG_LIST = ['LCGC', 'LMPV', 'MPV Medium', 'Low SUV', 'Medium SUV', 'Hatchback', 'Sedan', 'EV', 'Pick Up', 'Double Cabin', 'Van / Minibus', 'Truck', 'Roda Tiga', 'Lainnya'];
+
+  function decode(seed) {
+    var p = seed.p, dm = p.dims, P = [], kset = {}, i, o;
+    (p.k || []).forEach(function (x) { kset[x] = 1; });
+    for (i = 0; i < p.rk.length; i++) {
+      o = i * 8;
+      P.push({ ym: dm.ym[p.rows[o]], w: dm.w[p.rows[o + 1]], kec: dm.kec[p.rows[o + 2]], kel: dm.kel[p.rows[o + 3]], m: dm.m[p.rows[o + 4]], t: dm.t[p.rows[o + 5]], nd: dm.nd[p.rows[o + 6]], sg: dm.sg[p.rows[o + 7]], r: p.rk[i], k: kset[i] ? 1 : 0 });
+    }
+    var d = seed.d, dd = d.dims, D = [];
+    for (i = 0; i < d.rk.length; i++) { o = i * 4; D.push({ c: dd.c[d.rows[o]], nd: dd.nd[d.rows[o + 1]], lg: dd.lg[d.rows[o + 2]], kec: dd.kec[d.rows[o + 3]], d: d.dt[i], r: d.rk[i] }); }
+    return { P: P, D: D, cab: Object.assign({}, d.cab), over: Object.assign({}, seed.over || {}), meta: Object.assign({}, seed.meta || {}) };
+  }
+  function enc(rows, keys) {
+    var dims = {}, idx = {}, flat = [];
+    keys.forEach(function (k) { dims[k] = []; idx[k] = new Map(); });
+    rows.forEach(function (r) { keys.forEach(function (k) { var i = idx[k].get(r[k]); if (i == null) { i = dims[k].length; dims[k].push(r[k]); idx[k].set(r[k], i); } flat.push(i); }); });
+    return { dims: dims, flat: flat };
+  }
+  function encode() {
+    var pe = enc(S.P, ['ym', 'w', 'kec', 'kel', 'm', 't', 'nd', 'sg']), de = enc(S.D, ['c', 'nd', 'lg', 'kec']), k = [];
+    S.P.forEach(function (r, i) { if (r.k) k.push(i); });
+    return { v: 1, meta: Object.assign({}, S.meta, { savedAt: new Date().toISOString() }),
+      p: { dims: pe.dims, rows: pe.flat, rk: S.P.map(function (r) { return r.r; }), k: k },
+      d: { cab: S.cab, dims: de.dims, rows: de.flat, dt: S.D.map(function (r) { return r.d; }), rk: S.D.map(function (r) { return r.r; }) }, over: S.over };
+  }
+  function adopt(st) { S.P = st.P; S.D = st.D; S.cab = st.cab; S.over = st.over; S.meta = st.meta; reindex(); }
+
+  function cabName(c) { var n = S.cab[c]; return n && n !== c ? c + ' ' + n : c; }
+  function reindex() {
+    var noka = new Map(); S.D.forEach(function (d) { if (d.r) noka.set(d.r, d.c); });
+    var mcount = new Map(), yset = {};
+    S.P.forEach(function (r) {
+      var ov = S.over[r.m + '|' + r.t]; if (ov) { r.nd = ov[0]; r.sg = ov[1]; r.k = 0; }
+      r.c = (r.r && noka.get(r.r)) || '';
+      r.kk = r.kec + ' — ' + r.w; r.lk = r.kel + ' — ' + r.kec;
+      mcount.set(r.m, (mcount.get(r.m) || 0) + 1); yset[r.ym] = 1;
+    });
+    X.yms = Object.keys(yset).sort();
+    X.pset = new Set(S.P.map(function (r) { return r.r; }));
+    var cc = count(S.D, function (d) { return d.c; });
+    X.cabs = sorted(cc).map(function (e) { return e[0]; });
+    var others = sorted(mcount).map(function (e) { return e[0]; }).filter(function (m) { return m !== 'DAIHATSU'; }).slice(0, 4);
+    X.major = ['DAIHATSU'].concat(others);
+    var yrs = Array.from(new Set(S.D.map(function (d) { return d.d.slice(0, 4); }))).sort();
+    X.years = yrs;
+    if (!X.doYears || !Array.from(X.doYears).some(function (y) { return yrs.indexOf(y) >= 0; })) X.doYears = new Set(yrs.slice(-2));
+    Object.keys(F).forEach(function (k) { F[k] = new Set(Array.from(F[k])); });
+  }
+  function pass(r, skip) {
+    if (skip !== 'ym' && F.ym.size && !F.ym.has(r.ym)) return false;
+    for (var i = 0; i < DIMS.length; i++) { var k = DIMS[i][0]; if (k !== skip && F[k].size && !F[k].has(r[k])) return false; }
+    return true;
+  }
+  function prune() {
+    DIMS.forEach(function (d) {
+      var k = d[0]; if (!F[k].size) return;
+      var av = new Set(); S.P.forEach(function (r) { if (pass(r, k)) av.add(r[k]); });
+      F[k].forEach(function (v) { if (!av.has(v)) F[k].delete(v); });
+    });
+    F.ym.forEach(function (v) { if (X.yms.indexOf(v) < 0) F.ym.delete(v); });
+  }
+
+  /* ---------- warna ---------- */
+  var SER = ['--s1', '--s2', '--s3', '--s4', '--s5'];
+  function merekColor(m) { var i = X.major.indexOf(m); return css(i >= 0 ? SER[i] : '--s0'); }
+  function cabColor(c) { var i = X.cabs.indexOf(c); return css(SER[(i < 0 ? 0 : i) % SER.length]); }
+
+  /* ---------- tooltip sederhana untuk SVG ---------- */
+  var tip = $('tip');
+  function showTip(e, nodes) { clear(tip); nodes.forEach(function (n) { tip.appendChild(n); }); tip.hidden = false; var x = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8), y = e.clientY + 14; if (y + tip.offsetHeight > window.innerHeight - 8) y = e.clientY - tip.offsetHeight - 10; tip.style.left = Math.max(8, x) + 'px'; tip.style.top = y + 'px'; }
+  function hideTip() { tip.hidden = true; }
+
+  /* ---------- Chart.js ---------- */
+  var charts = {};
+  var tipLabels = {
+    id: 'tipLabels',
+    afterDatasetsDraw: function (ch, _a, opt) {
+      if (!opt || !opt.on) return;
+      var horiz = ch.options.indexAxis === 'y', ctx = ch.ctx, n = ch.data.labels.length, metas = ch.getSortedVisibleDatasetMetas();
+      ctx.save(); ctx.font = '600 11px ' + css('--text'); ctx.fillStyle = css('--ink2');
+      for (var i = 0; i < n; i++) {
+        var total = 0, ext = null, other = null;
+        metas.forEach(function (m) { var el = m.data[i], v = +ch.data.datasets[m.index].data[i] || 0; total += v; if (!el || !v) return; if (horiz) { ext = ext == null ? el.x : Math.max(ext, el.x); other = el.y; } else { ext = ext == null ? el.y : Math.min(ext, el.y); other = el.x; } });
+        if (ext == null || !total) continue;
+        var txt = opt.fmt ? opt.fmt(total, i) : fmt(total);
+        if (horiz) { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(txt, ext + 6, other); }
+        else { ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(txt, other, ext - 4); }
+      }
+      ctx.restore();
+    }
+  };
+  var centerText = {
+    id: 'centerText',
+    afterDraw: function (ch, _a, opt) {
+      if (!opt || !opt.top) return; var a = ch.chartArea, cx = (a.left + a.right) / 2, cy = (a.top + a.bottom) / 2, ctx = ch.ctx;
+      ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = css('--ink'); ctx.font = '700 22px ' + css('--display'); ctx.fillText(opt.top, cx, cy - 6);
+      ctx.fillStyle = css('--muted'); ctx.font = '500 11px ' + css('--text'); ctx.fillText(opt.bottom || '', cx, cy + 14); ctx.restore();
+    }
+  };
+  function baseOpts(extra) {
+    var o = {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: css('--ink'), titleColor: css('--card'), bodyColor: css('--card'), footerColor: css('--card'), padding: 10, cornerRadius: 9, boxPadding: 4, usePointStyle: true, titleFont: { family: css('--text'), weight: '600' }, bodyFont: { family: css('--text') }, footerFont: { family: css('--text'), weight: '600' }, filter: function (it) { var t = it.chart.config.type; if (t === 'doughnut') return true; var v = it.chart.options.indexAxis === 'y' ? it.parsed.x : it.parsed.y; return v != null && (t === 'line' || v !== 0); } } }
+    };
+    return Object.assign(o, extra || {});
+  }
+  function axis(grid, extra) { return Object.assign({ grid: { display: !!grid, color: css('--line'), drawTicks: false }, border: { display: false }, ticks: { color: css('--ink2'), font: { family: css('--text'), size: 11 }, padding: 6 } }, extra || {}); }
+  function draw(id, cfg) {
+    if (!window.Chart) return;
+    if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    cfg.plugins = [tipLabels, centerText];
+    charts[id] = new Chart($(id), cfg);
+  }
+  function stackDs(label, data, color) { return { label: label, data: data, backgroundColor: color, borderColor: css('--card'), borderWidth: 1, borderRadius: 4, borderSkipped: false, maxBarThickness: 22, categoryPercentage: .78, barPercentage: .9 }; }
+  function totalFooter(items) { var t = 0; items.forEach(function (i) { t += (i.chart.options.indexAxis === 'y' ? i.parsed.x : i.parsed.y) || 0; }); return 'Total: ' + fmt(t); }
+  function legend(host, items) { clear(host); items.forEach(function (it) { host.appendChild(h('span', null, [h('i', { class: it.line ? 'ln' : '', style: 'background:' + it.color + (it.dash ? ';background:repeating-linear-gradient(90deg,' + it.color + ' 0 4px,transparent 4px 7px)' : '') }), it.label])); }); }
+
+  /* ---------- tabel ---------- */
+  function table(host, cfg) {
+    var ui = host._ui;
+    if (!ui) {
+      ui = host._ui = { q: '', sort: cfg.sort ? cfg.sort.slice() : null, all: false };
+      ui.tools = h('div', { class: 'ttools' }); ui.body = h('div'); ui.cnt = h('span', { class: 'cnt' });
+      if (cfg.search) {
+        ui.input = h('input', { type: 'search', id: host.id + '-q', placeholder: cfg.search, 'aria-label': cfg.search, oninput: function () { ui.q = ui.input.value.trim().toUpperCase(); ui.all = false; paint(); } });
+        ui.tools.appendChild(ui.input);
+      }
+      ui.tools.appendChild(ui.cnt); host.appendChild(ui.tools); host.appendChild(ui.body);
+      if (!cfg.search && !cfg.limit) ui.tools.hidden = true;
+    }
+    ui.cfg = cfg;
+    function paint() {
+      var c = ui.cfg, rows = c.rows.slice();
+      if (ui.q && c.text) rows = rows.filter(function (r) { return c.text(r).toUpperCase().indexOf(ui.q) >= 0; });
+      if (ui.sort) { var col = c.cols.filter(function (x) { return x.k === ui.sort[0]; })[0]; if (col && col.val) rows.sort(function (a, b) { var x = col.val(a), y = col.val(b); var d = (typeof x === 'number' && typeof y === 'number') ? x - y : String(x).localeCompare(String(y)); return ui.sort[1] === 'asc' ? d : -d; }); }
+      var total = rows.length, lim = c.limit && !ui.all ? c.limit : total, shown = rows.slice(0, lim);
+      clear(ui.body);
+      ui.cnt.textContent = c.limit || c.search ? (shown.length < total ? fmt(shown.length) + ' dari ' + fmt(total) + ' baris' : fmt(total) + ' baris') : '';
+      if (!total) { ui.body.appendChild(h('div', { class: 'empty', text: c.empty || 'Tidak ada data untuk filter ini.' })); return; }
+      var thead = h('tr');
+      c.cols.forEach(function (col) {
+        var th = h('th', { class: (col.num ? 'num ' : '') + (col.hide ? 'hide-s' : ''), 'aria-sort': ui.sort && ui.sort[0] === col.k ? (ui.sort[1] === 'asc' ? 'ascending' : 'descending') : null });
+        if (col.val) th.appendChild(h('button', { type: 'button', text: col.label + (ui.sort && ui.sort[0] === col.k ? (ui.sort[1] === 'asc' ? ' ↑' : ' ↓') : ''), onclick: function () { ui.sort = ui.sort && ui.sort[0] === col.k ? [col.k, ui.sort[1] === 'asc' ? 'desc' : 'asc'] : [col.k, col.num ? 'desc' : 'asc']; paint(); } }));
+        else th.appendChild(h('button', { type: 'button', text: col.label, tabindex: '-1' }));
+        thead.appendChild(th);
+      });
+      var tb = h('tbody');
+      shown.forEach(function (r) { var tr = h('tr'); c.cols.forEach(function (col) { var v = col.render(r); tr.appendChild(h('td', { class: (col.num ? 'num ' : '') + (col.hide ? 'hide-s' : '') }, [typeof v === 'number' ? fmt(v) : v])); }); tb.appendChild(tr); });
+      var t = h('table', { class: 't' }, [h('thead', null, [thead]), tb]);
+      if (c.foot) { var fr = h('tr'); c.cols.forEach(function (col) { var v = col.foot ? col.foot(c.foot) : ''; fr.appendChild(h('td', { class: (col.num ? 'num ' : '') + (col.hide ? 'hide-s' : '') }, [typeof v === 'number' ? fmt(v) : v])); }); t.appendChild(h('tfoot', null, [fr])); }
+      ui.body.appendChild(h('div', { class: 'tw' }, [t]));
+      if (c.limit && total > c.limit) ui.body.appendChild(h('button', { type: 'button', class: 'morebtn', text: ui.all ? 'Tampilkan lebih sedikit' : 'Tampilkan semua ' + fmt(total) + ' baris', onclick: function () { ui.all = !ui.all; paint(); } }));
+    }
+    paint();
+  }
+  function link(dim, val, label, sub) {
+    var b = h('button', { type: 'button', class: 'lk', title: 'Jadikan filter', text: label || val, onclick: function () { if (F[dim].size === 1 && F[dim].has(val)) F[dim].clear(); else F[dim] = new Set([val]); prune(); renderAll(); } });
+    return sub ? h('span', null, [b, h('span', { class: 'dim', text: sub })]) : b;
+  }
+  function barCell(v, max, gray) { return h('span', null, [h('span', { class: 'bar' + (gray ? ' g' : ''), style: 'width:' + Math.max(2, Math.round(v / (max || 1) * 54)) + 'px' }), fmt(v)]); }
+  function topBadges(rows) {
+    var tm = top(count(rows, function (r) { return r.m; })), m = tm[0];
+    var tn = top(count(rows.filter(function (r) { return r.m === m; }), function (r) { return r.nd; }));
+    return h('span', null, [h('span', { class: 'badge' + (m === 'DAIHATSU' ? ' d' : ''), text: title(m) + ' ' + fmt(tm[1]) }), h('span', { class: 'badge hide-s', text: title(tn[0].replace(m + ' ', '')) + ' ' + fmt(tn[1]) })]);
+  }
+
+  /* ---------- filter UI ---------- */
+  var MS = {};
+  function buildFilters() {
+    var row = clear($('frow'));
+    DIMS.forEach(function (d, i) {
+      var k = d[0], wrap = h('div', { class: 'ms' + (i % 3 === 2 || i >= 4 ? ' right' : '') }), vEl = h('span', { class: 'v' });
+      var btn = h('button', { type: 'button', id: 'f-' + k, 'aria-haspopup': 'listbox', 'aria-expanded': 'false', onclick: function (e) { e.stopPropagation(); toggle(k); } }, [h('span', null, [h('span', { class: 'k', text: d[1] }), vEl]), h('span', { class: 'caret', text: '▼' })]);
+      wrap.appendChild(btn); row.appendChild(wrap); MS[k] = { wrap: wrap, btn: btn, v: vEl, pop: null, label: d[1] };
+    });
+    row.appendChild(h('button', { type: 'button', class: 'reset', id: 'f-reset', text: 'Reset filter', onclick: function () { Object.keys(F).forEach(function (k) { F[k].clear(); }); closeAll(); renderAll(); } }));
+    document.addEventListener('click', function (e) { if (!e.target.closest || !e.target.closest('.pop')) closeAll(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+  }
+  function closeAll() { Object.keys(MS).forEach(function (k) { var m = MS[k]; if (m.pop) { m.pop.remove(); m.pop = null; m.btn.setAttribute('aria-expanded', 'false'); } }); }
+  function syncFilterLabels() {
+    Object.keys(MS).forEach(function (k) { var m = MS[k], n = F[k].size; m.v.textContent = !n ? 'Semua' : n === 1 ? Array.from(F[k])[0] : n + ' dipilih'; m.btn.classList.toggle('on', n > 0); });
+  }
+  function toggle(k) {
+    var m = MS[k], was = !!m.pop; closeAll(); if (was) return;
+    var opts = sorted(count(S.P.filter(function (r) { return pass(r, k); }), function (r) { return r[k]; }));
+    var q = '', list = h('ul', { role: 'listbox', 'aria-multiselectable': 'true' });
+    var search = h('input', { type: 'search', id: 'fq-' + k, placeholder: 'Cari ' + m.label.toLowerCase(), 'aria-label': 'Cari ' + m.label, oninput: function () { q = search.value.trim().toUpperCase(); fill(); } });
+    function visible() { return q ? opts.filter(function (o) { return String(o[0]).toUpperCase().indexOf(q) >= 0; }) : opts; }
+    function fill() {
+      clear(list); var vis = visible();
+      vis.slice(0, 250).forEach(function (o, i) {
+        var cb = h('input', { type: 'checkbox', id: 'fo-' + k + '-' + i, checked: F[k].has(o[0]), onchange: function () { if (cb.checked) F[k].add(o[0]); else F[k].delete(o[0]); after(); } });
+        list.appendChild(h('li', null, [h('label', { for: 'fo-' + k + '-' + i }, [cb, h('span', { class: 't', text: o[0] }), h('span', { class: 'n', text: fmt(o[1]) })])]));
+      });
+      if (vis.length > 250) list.appendChild(h('li', { class: 'more', text: fmt(vis.length - 250) + ' lainnya — ketik untuk mencari' }));
+      if (!vis.length) list.appendChild(h('li', { class: 'more', text: 'Tidak ditemukan' }));
+    }
+    function after() { prune(); renderAll(true); }
+    var acts = h('div', { class: 'acts' }, [
+      h('button', { type: 'button', text: 'Pilih yang tampil', onclick: function () { visible().slice(0, 250).forEach(function (o) { F[k].add(o[0]); }); fill(); after(); } }),
+      h('button', { type: 'button', text: 'Kosongkan', onclick: function () { F[k].clear(); fill(); after(); } })]);
+    m.pop = h('div', { class: 'pop', onclick: function (e) { e.stopPropagation(); } }, [search, acts, list]);
+    fill(); m.wrap.appendChild(m.pop); m.btn.setAttribute('aria-expanded', 'true');
+    if (window.matchMedia('(pointer:fine)').matches) search.focus();
+  }
+  function renderChips() {
+    var host = clear($('bulanChips')); host.appendChild(h('span', { class: 'lbl', text: 'Bulan' }));
+    host.appendChild(h('button', { type: 'button', class: 'chip', 'aria-pressed': String(!F.ym.size), text: 'Semua', onclick: function () { F.ym.clear(); prune(); renderAll(); } }));
+    X.yms.forEach(function (ym) { host.appendChild(h('button', { type: 'button', class: 'chip', 'aria-pressed': String(F.ym.has(ym)), text: C.ymShort(ym), onclick: function () { if (F.ym.has(ym)) F.ym.delete(ym); else F.ym.add(ym); prune(); renderAll(); } })); });
+  }
+
+  /* ---------- gambar kecil ---------- */
+  var NS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs) { var e = document.createElementNS(NS, tag); Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); }); return e; }
+  function spark(vals, color, id) {
+    var W = 200, H = 80, n = vals.length, max = Math.max.apply(null, vals.concat([1])), s = svg('svg', { viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'none', 'aria-hidden': 'true' });
+    if (n < 2) return s;
+    var pts = vals.map(function (v, i) { return [8 + i * (W - 20) / (n - 1), H - 10 - v / max * (H - 26)]; }), d = 'M' + pts[0][0] + ' ' + pts[0][1];
+    for (var i = 1; i < n; i++) { var p0 = pts[i - 1], p1 = pts[i], cx = (p0[0] + p1[0]) / 2; d += ' C' + cx + ' ' + p0[1] + ' ' + cx + ' ' + p1[1] + ' ' + p1[0] + ' ' + p1[1]; }
+    var g = svg('linearGradient', { id: id, x1: 0, y1: 0, x2: 0, y2: 1 }); g.appendChild(svg('stop', { offset: '0', 'stop-color': color, 'stop-opacity': '.28' })); g.appendChild(svg('stop', { offset: '1', 'stop-color': color, 'stop-opacity': '0' }));
+    var defs = svg('defs'); defs.appendChild(g); s.appendChild(defs);
+    s.appendChild(svg('path', { d: d + ' L' + pts[n - 1][0] + ' ' + H + ' L' + pts[0][0] + ' ' + H + ' Z', fill: 'url(#' + id + ')' }));
+    s.appendChild(svg('path', { d: d, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linecap': 'round', 'vector-effect': 'non-scaling-stroke' }));
+    var e = pts[n - 1]; s.appendChild(svg('path', { d: 'M' + e[0] + ' ' + e[1] + ' l0.01 0', fill: 'none', stroke: color, 'stroke-width': 9, 'stroke-linecap': 'round', 'vector-effect': 'non-scaling-stroke' }));
+    return s;
+  }
+  function ring(label, a, b, color, sub) {
+    var r = 42, c = 2 * Math.PI * r, p = b ? Math.min(1, a / b) : 0, s = svg('svg', { viewBox: '0 0 110 110', role: 'img', 'aria-label': label + ' ' + pct(a, b) });
+    s.appendChild(svg('circle', { cx: 55, cy: 55, r: r, fill: 'none', stroke: css('--line'), 'stroke-width': 12 }));
+    s.appendChild(svg('circle', { cx: 55, cy: 55, r: r, fill: 'none', stroke: color, 'stroke-width': 12, 'stroke-linecap': 'round', 'stroke-dasharray': (p * c) + ' ' + c, transform: 'rotate(-90 55 55)' }));
+    var t = svg('text', { x: 55, y: 60, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 700, fill: css('--ink'), 'font-family': css('--display') }); t.textContent = pct(a, b, 0); s.appendChild(t);
+    return h('div', { class: 'ring' }, [h('div', { class: 'rl', text: label }), s, h('div', { class: 'rs', text: sub })]);
+  }
+
+  /* ---------- render ---------- */
+  function cabLabelAll() { return X.cabs.length === 1 ? cabName(X.cabs[0]) : X.cabs.length ? 'cabang terdata' : 'cabang'; }
+  function renderAll(keepOpen) {
+    if (!keepOpen) closeAll();
+    var rows = S.P.filter(function (r) { return pass(r); });
+    var trendRows = S.P.filter(function (r) { return pass(r, 'ym'); });
+    renderChips(); syncFilterLabels();
+    var act = []; if (F.ym.size) act.push(F.ym.size + ' bulan'); DIMS.forEach(function (d) { if (F[d[0]].size) act.push(d[1].toLowerCase() + ': ' + F[d[0]].size); });
+    $('fnote').textContent = (act.length ? 'Filter aktif — ' + act.join(' · ') + '. ' : 'Semua data ditampilkan. ') + fmt(rows.length) + ' unit cocok.';
+    $('periode').textContent = 'Pendaftaran kendaraan baru roda empat · Sulawesi Utara · ' + (X.yms.length ? C.ymLabel(X.yms[0]) + ' – ' + C.ymLabel(X.yms[X.yms.length - 1]) : 'belum ada data');
+    renderKpi(rows, trendRows); renderTren(rows, trendRows); renderCabang(rows); renderDo(rows);
+    renderSeg(rows); renderMerek(rows); renderNd(rows); renderLok(rows); renderKelola();
+    $('foot').textContent = 'Sumber: data Polreg Samsat Sulawesi Utara dan DO List DSC · ' + fmt(S.P.length) + ' unit Polreg, ' + fmt(S.D.length) + ' DO.';
+  }
+
+  function renderKpi(rows, tr) {
+    var host = clear($('kpis')), tot = rows.length, dai = rows.filter(function (r) { return r.m === 'DAIHATSU'; }), sold = dai.filter(function (r) { return r.c; });
+    var rival = sorted(count(rows.filter(function (r) { return r.m !== 'DAIHATSU'; }), function (r) { return r.m; }))[0] || ['–', 0];
+    function series(f) { var m = count(tr.filter(f), function (r) { return r.ym; }); return X.yms.map(function (y) { return m.get(y) || 0; }); }
+    var nb = F.ym.size || X.yms.length;
+    var defs = [
+      ['c1', 'Total Polreg', 'Semua merek · ' + nb + ' bulan', fmt(tot), 'unit terdaftar', series(function () { return true; }), '--s1'],
+      ['c2', 'Daihatsu', 'Pangsa pasar ' + pct(dai.length, tot), fmt(dai.length), 'unit Daihatsu', series(function (r) { return r.m === 'DAIHATSU'; }), '--s3'],
+      ['c3', 'Dijual ' + cabLabelAll(), pct(sold.length, dai.length) + ' dari Daihatsu terdaftar', fmt(sold.length), 'unit cocok dengan DO List', series(function (r) { return r.c; }), '--s4'],
+      ['c4', 'Pesaing terdekat', title(rival[0]) + ' · pangsa ' + pct(rival[1], tot), fmt(rival[1]), 'unit ' + title(rival[0]), series(function (r) { return r.m === rival[0]; }), '--s2']
+    ];
+    defs.forEach(function (d, i) { host.appendChild(h('article', { class: 'card kpi ' + d[0], id: 'kpi-' + i }, [h('div', { class: 't', text: d[1] }), h('div', { class: 's', text: d[2] }), h('div', { class: 'big', text: d[3] }), h('div', { class: 'u', text: d[4] }), spark(d[5], css(d[6]), 'sg' + i)])); });
+  }
+
+  function renderTren(rows, tr) {
+    var tot = rows.length, cm = count(rows, function (r) { return r.m; }), dai = cm.get('DAIHATSU') || 0, sold = rows.filter(function (r) { return r.m === 'DAIHATSU' && r.c; }).length;
+    var rank = sorted(cm), pos = rank.map(function (e) { return e[0]; }).indexOf('DAIHATSU') + 1, lead = rank[0] || ['–', 0];
+    var rival = rank.filter(function (e) { return e[0] !== 'DAIHATSU'; })[0] || ['–', 0];
+    $('trenLead').textContent = !tot ? 'Tidak ada unit pada filter ini.' : 'Dari ' + fmt(tot) + ' unit terdaftar, Daihatsu ' + fmt(dai) + ' unit (' + pct(dai, tot) + ')' + (pos === 1 ? ', teratas di depan ' + title(rival[0]) + ' ' + fmt(rival[1]) + ' unit.' : pos ? ', peringkat ' + pos + ' di belakang ' + title(lead[0]) + ' ' + fmt(lead[1]) + ' unit (' + pct(lead[1], tot) + ').' : '.');
+    var rg = clear($('rings'));
+    rg.appendChild(ring('Pangsa Daihatsu', dai, tot, css('--s1'), fmt(dai) + ' dari ' + fmt(tot)));
+    rg.appendChild(ring('Daihatsu dijual ' + (X.cabs.length === 1 ? X.cabs[0] : 'cabang terdata'), sold, dai, css('--s4'), fmt(sold) + ' dari ' + fmt(dai)));
+    rg.appendChild(ring('Pangsa ' + title(rival[0]), rival[1], tot, css('--s2'), fmt(rival[1]) + ' dari ' + fmt(tot)));
+    var series = X.major.concat(['Merek lain']), byYm = groupBy(tr, function (r) { return r.ym; });
+    var mat = series.map(function () { return []; });
+    X.yms.forEach(function (ym) { var c = count(byYm.get(ym) || [], function (r) { return X.major.indexOf(r.m) >= 0 ? r.m : 'Merek lain'; }); series.forEach(function (s, i) { mat[i].push(c.get(s) || 0); }); });
+    legend($('trenLegend'), series.map(function (s) { return { label: s === 'Merek lain' ? s : title(s), color: merekColor(s) }; }));
+    var sel = F.ym;
+    draw('chTren', { type: 'bar', data: { labels: X.yms.map(C.ymShort), datasets: series.map(function (s, i) { var col = merekColor(s); return Object.assign(stackDs(s === 'Merek lain' ? s : title(s), mat[i], col), { backgroundColor: X.yms.map(function (ym) { return !sel.size || sel.has(ym) ? col : col + '55'; }) }); }) },
+      options: baseOpts({ layout: { padding: { top: 18 } }, interaction: { mode: 'index', intersect: false }, scales: { x: axis(false, { stacked: true }), y: axis(true, { stacked: true, beginAtZero: true }) }, plugins: Object.assign(baseOpts().plugins, { tipLabels: { on: true }, tooltip: Object.assign(baseOpts().plugins.tooltip, { callbacks: { footer: totalFooter } }) }) }) });
+    var trows = X.yms.map(function (ym, j) { var o = { ym: ym, tot: 0 }; series.forEach(function (s, i) { o[s] = mat[i][j]; o.tot += mat[i][j]; }); return o; });
+    table($('tbTren'), { rows: trows, cols: [{ k: 'ym', label: 'Bulan', render: function (r) { return C.ymLabel(r.ym); } }].concat(series.map(function (s) { return { k: s, label: s === 'Merek lain' ? s : title(s), num: true, render: function (r) { return r[s]; } }; })).concat([{ k: 'tot', label: 'Total', num: true, render: function (r) { return r.tot; } }, { k: 'ms', label: 'Pangsa Daihatsu', num: true, render: function (r) { return pct(r.DAIHATSU, r.tot); } }]) });
+  }
+
+  function renderCabang(rows) {
+    var dai = rows.filter(function (r) { return r.m === 'DAIHATSU'; }), cabs = X.cabs, sold = dai.filter(function (r) { return r.c; });
+    var pills = clear($('cabPills'));
+    if (!cabs.length) pills.appendChild(h('span', { class: 'pill', text: 'Belum ada DO List. Unggah di bagian Kelola data.' }));
+    cabs.forEach(function (c) { var d = S.D.filter(function (x) { return x.c === c; }), ds = d.map(function (x) { return x.d; }).sort(); pills.appendChild(h('span', { class: 'pill' }, [h('i', { style: 'width:9px;height:9px;border-radius:50%;background:' + cabColor(c) }), h('b', { text: cabName(c) }), fmt(d.length) + ' DO · ' + C.ymShort(ds[0].slice(0, 7)) + ' – ' + C.ymShort(ds[ds.length - 1].slice(0, 7))])); });
+    var facts = clear($('cabFacts'));
+    [[fmt(dai.length), 'Daihatsu terdaftar di Polreg pada filter ini'], [fmt(sold.length) + ' · ' + pct(sold.length, dai.length), 'dijual ' + cabLabelAll() + ' (nomor rangka cocok dengan DO List)'], [fmt(dai.length - sold.length) + ' · ' + pct(dai.length - sold.length, dai.length), 'dijual cabang lain atau belum ada DO List-nya']].forEach(function (f) { facts.appendChild(h('div', { class: 'fact' }, [h('div', { class: 'fv', text: f[0] }), h('div', { class: 'fl', text: f[1] })])); });
+
+    function agg(keyFn, allRows) {
+      var gt = count(allRows, keyFn), out = [];
+      groupBy(dai, keyFn).forEach(function (rs, k) { var o = { key: k, tot: gt.get(k) || 0, dai: rs.length, sold: 0 }; cabs.forEach(function (c) { o[c] = 0; }); rs.forEach(function (r) { if (r.c) { o[r.c] = (o[r.c] || 0) + 1; o.sold++; } }); o.other = o.dai - o.sold; out.push(o); });
+      gt.forEach(function (n, k) { if (!out.some(function (o) { return o.key === k; })) { var o = { key: k, tot: n, dai: 0, sold: 0, other: 0 }; cabs.forEach(function (c) { o[c] = 0; }); out.push(o); } });
+      return out.sort(function (a, b) { return b.dai - a.dai || b.tot - a.tot; });
+    }
+    function cabCols() { return cabs.map(function (c) { return { k: c, label: c, num: true, val: function (r) { return r[c]; }, render: function (r) { return r[c]; }, foot: function (f) { return f[c]; } }; }); }
+    function footOf(list) { var f = { tot: 0, dai: 0, sold: 0, other: 0 }; cabs.forEach(function (c) { f[c] = 0; }); list.forEach(function (o) { f.tot += o.tot; f.dai += o.dai; f.sold += o.sold; f.other += o.other; cabs.forEach(function (c) { f[c] += o[c]; }); }); return f; }
+    var share = { k: 'sh', label: 'Porsi ' + (cabs.length === 1 ? cabs[0] : 'cabang terdata'), num: true, val: function (r) { return r.dai ? r.sold / r.dai : -1; }, render: function (r) { return pct(r.sold, r.dai); }, foot: function (f) { return pct(f.sold, f.dai); } };
+    var other = { k: 'other', label: 'Cabang lain', num: true, hide: true, val: function (r) { return r.other; }, render: function (r) { return r.other; }, foot: function (f) { return f.other; } };
+
+    var byW = agg(function (r) { return r.w; }, rows), wl = byW.filter(function (o) { return o.dai; });
+    legend($('cabLegend'), cabs.map(function (c) { return { label: cabName(c), color: cabColor(c) }; }).concat([{ label: 'Cabang lain / belum ada DO List', color: css('--s0') }]));
+    var hopt = function () { return baseOpts({ indexAxis: 'y', layout: { padding: { right: 44 } }, interaction: { mode: 'index', intersect: false, axis: 'y' }, scales: { x: axis(true, { stacked: true, beginAtZero: true }), y: axis(false, { stacked: true }) }, plugins: Object.assign(baseOpts().plugins, { tipLabels: { on: true }, tooltip: Object.assign(baseOpts().plugins.tooltip, { callbacks: { footer: totalFooter } }) }) }); };
+    draw('chCabWil', { type: 'bar', data: { labels: wl.map(function (o) { return o.key; }), datasets: cabs.map(function (c) { return stackDs(cabName(c), wl.map(function (o) { return o[c]; }), cabColor(c)); }).concat([stackDs('Cabang lain', wl.map(function (o) { return o.other; }), css('--s0'))]) }, options: hopt() });
+    table($('tbCabWil'), { rows: byW, sort: ['dai', 'desc'], foot: footOf(byW), cols: [
+      { k: 'key', label: 'Kota / kab.', val: function (r) { return r.key; }, render: function (r) { return link('w', r.key); }, foot: function () { return 'Total'; } },
+      { k: 'tot', label: 'Semua merek', num: true, hide: true, val: function (r) { return r.tot; }, render: function (r) { return r.tot; }, foot: function (f) { return f.tot; } },
+      { k: 'dai', label: 'Daihatsu', num: true, val: function (r) { return r.dai; }, render: function (r) { return r.dai; }, foot: function (f) { return f.dai; } }].concat(cabCols()).concat([other, share,
+      { k: 'ms', label: 'Pangsa pasar ' + (cabs.length === 1 ? cabs[0] : 'cabang'), num: true, hide: true, val: function (r) { return r.tot ? r.sold / r.tot : -1; }, render: function (r) { return pct(r.sold, r.tot); }, foot: function (f) { return pct(f.sold, f.tot); } }]) });
+
+    var byNd = agg(function (r) { return r.nd; }, dai).filter(function (o) { return o.dai; }).slice(0, 10);
+    draw('chCabNd', { type: 'bar', data: { labels: byNd.map(function (o) { return title(o.key.replace('DAIHATSU ', '')); }), datasets: cabs.map(function (c) { return stackDs(cabName(c), byNd.map(function (o) { return o[c]; }), cabColor(c)); }).concat([stackDs('Cabang lain', byNd.map(function (o) { return o.other; }), css('--s0'))]) }, options: hopt() });
+
+    var byK = agg(function (r) { return r.kk; }, rows).filter(function (o) { return o.dai; });
+    table($('tbCabKec'), { rows: byK, sort: ['dai', 'desc'], limit: 9, search: 'Cari kecamatan', text: function (r) { return r.key; }, cols: [
+      { k: 'key', label: 'Kecamatan', val: function (r) { return r.key; }, render: function (r) { var p = r.key.split(' — '); return link('kk', r.key, p[0], p[1]); } },
+      { k: 'dai', label: 'Daihatsu', num: true, val: function (r) { return r.dai; }, render: function (r) { return r.dai; } }].concat(cabCols()).concat([other, share]) });
+  }
+
+  function renderDo(rows) {
+    rows = rows || S.P.filter(function (r) { return pass(r); }); X.lastRows = rows;
+    var cabs = X.cabs, yrs = X.years || [], host = clear($('doYears'));
+    host.appendChild(h('span', { class: 'lbl', text: 'Tahun' }));
+    yrs.forEach(function (y) { host.appendChild(h('button', { type: 'button', class: 'chip', 'aria-pressed': String(X.doYears.has(y)), text: y, onclick: function () { if (X.doYears.has(y)) { if (X.doYears.size > 1) X.doYears.delete(y); } else X.doYears.add(y); renderDo(X.lastRows); } })); });
+    var sel = yrs.filter(function (y) { return X.doYears.has(y); }), last = sel[sel.length - 1], ds = [], lg = [], DASH = [[], [5, 4], [2, 3]];
+    cabs.forEach(function (c) {
+      sel.slice().reverse().forEach(function (y, j) {
+        var m = count(S.D.filter(function (d) { return d.c === c && d.d.slice(0, 4) === y; }), function (d) { return +d.d.slice(5, 7); }), maxM = 0; m.forEach(function (_v, k) { if (k > maxM) maxM = k; });
+        var data = []; for (var i = 1; i <= 12; i++) data.push(i <= maxM ? (m.get(i) || 0) : null);
+        var col = cabColor(c), dash = DASH[Math.min(j, 2)];
+        ds.push({ label: cabName(c) + ' ' + y, data: data, borderColor: col, backgroundColor: col, borderWidth: 2, borderDash: dash, tension: .3, pointRadius: y === last ? 4 : 3, pointHoverRadius: 6, pointBorderColor: css('--card'), pointBorderWidth: 2, spanGaps: false });
+        lg.push({ label: cabName(c) + ' ' + y + (dash.length ? ' (putus-putus)' : ''), color: col, line: true, dash: dash.length > 0 });
+      });
+    });
+    legend($('doLegend'), lg);
+    draw('chDo', { type: 'line', data: { labels: C.BULAN.map(function (b) { return b.slice(0, 3); }), datasets: ds }, options: baseOpts({ interaction: { mode: 'index', intersect: false }, scales: { x: axis(false), y: axis(true, { beginAtZero: true }) } }) });
+
+    var pYm = new Set(X.yms), daiAll = S.P.filter(function (r) { return r.m === 'DAIHATSU'; }), dai = rows.filter(function (r) { return r.m === 'DAIHATSU'; });
+    var wAll = count(daiAll, function (r) { return r.w; });
+    var info = cabs.map(function (c) {
+      var d = S.D.filter(function (x) { return x.c === c; }), o = { c: c, n: d.length };
+      var wc = count(daiAll.filter(function (r) { return r.c === c; }), function (r) { return r.w; });
+      o.home = sorted(wc).filter(function (e) { return e[1] / (wAll.get(e[0]) || 1) >= .25; }).map(function (e) { return e[0]; });
+      var hs = new Set(o.home), inHome = dai.filter(function (r) { return hs.has(r.w); });
+      o.market = rows.filter(function (r) { return hs.has(r.w); }).length; o.daiHome = inHome.length;
+      o.own = inHome.filter(function (r) { return r.c === c; }).length; o.leakIn = o.daiHome - o.own;
+      o.out = dai.filter(function (r) { return r.c === c && !hs.has(r.w); }).length;
+      yrs.forEach(function (y) { o[y] = d.filter(function (x) { return x.d.slice(0, 4) === y; }).length; });
+      var ly = yrs[yrs.length - 1], py = String(+ly - 1), mm = d.filter(function (x) { return x.d.slice(0, 4) === ly; }).reduce(function (a, x) { return Math.max(a, +x.d.slice(5, 7)); }, 0);
+      o.cur = o[ly] || 0; o.prevSame = d.filter(function (x) { return x.d.slice(0, 4) === py && +x.d.slice(5, 7) <= mm; }).length; o.ly = ly; o.mm = mm;
+      var inP = d.filter(function (x) { return pYm.has(x.d.slice(0, 7)); }); o.inP = inP.length; o.reg = inP.filter(function (x) { return X.pset.has(x.r); }).length;
+      o.early = d.filter(function (x) { return !pYm.has(x.d.slice(0, 7)) && X.pset.has(x.r); }).length;
+      o.cash = d.filter(function (x) { return x.lg === 'CASH'; }).length;
+      o.tl = top(count(d.filter(function (x) { return x.lg !== 'CASH'; }), function (x) { return x.lg; })); o.tm = top(count(d, function (x) { return x.nd; }));
+      return o;
+    });
+    var host2 = clear($('tbDo'));
+    if (!cabs.length) { host2.appendChild(h('div', { class: 'empty', text: 'Belum ada DO List.' })); return; }
+    function yoy(o) { if (!o.prevSame) return '–'; var g = (o.cur / o.prevSame - 1) * 100; return h('span', { style: 'color:var(' + (g >= 0 ? '--good' : '--bad') + ');font-weight:600', text: (g >= 0 ? '▲ +' : '▼ ') + g.toLocaleString('id-ID', { maximumFractionDigits: 1 }) + '%' }); }
+    var metrics = [
+      ['Wilayah utama', 'kota/kabupaten tempat cabang ini menjual ≥ 25% Daihatsu terdaftar', function (o) { return o.home.length ? o.home.join(', ') : '–'; }, 1],
+      ['Pasar di wilayah utama', 'semua merek, mengikuti filter', function (o) { return fmt(o.market); }],
+      ['Daihatsu di wilayah utama', 'pangsa Daihatsu di sana', function (o) { return fmt(o.daiHome) + ' · ' + pct(o.daiHome, o.market); }],
+      ['Dijual cabang ini', 'porsi dari Daihatsu di wilayah utama', function (o) { return h('b', { text: fmt(o.own) + ' · ' + pct(o.own, o.daiHome) }); }],
+      ['Dijual cabang lain', 'Daihatsu di wilayah utama yang bukan dari cabang ini', function (o) { return fmt(o.leakIn) + ' · ' + pct(o.leakIn, o.daiHome); }],
+      ['Terdaftar di luar wilayah utama', 'unit cabang ini yang terdaftar di kota/kabupaten lain', function (o) { return fmt(o.out); }]];
+    yrs.forEach(function (y) { metrics.push(['DO ' + y, 'menurut tanggal DO', function (o) { return fmt(o[y]); }]); });
+    metrics.push(['Dibanding periode sama', 'tahun terakhir terhadap bulan yang sama tahun sebelumnya', function (o) { return o.prevSame ? h('span', null, [yoy(o), ' (' + fmt(o.prevSame) + ' → ' + fmt(o.cur) + ')']) : '–'; }]);
+    metrics.push(['DO di bulan data Polreg', 'DO pada bulan-bulan yang ada di data Polreg', function (o) { return fmt(o.inP); }]);
+    metrics.push(['Sudah terdaftar di Polreg', 'dari DO di bulan-bulan itu', function (o) { return fmt(o.reg) + ' · ' + pct(o.reg, o.inP, 0); }]);
+    metrics.push(['Terdaftar dari DO sebelumnya', 'DO sebelum periode Polreg yang baru terdaftar', function (o) { return fmt(o.early); }]);
+    metrics.push(['Penjualan tunai', 'porsi dari semua DO', function (o) { return pct(o.cash, o.n, 0); }]);
+    metrics.push(['Leasing teratas', '', function (o) { return o.tl[0] ? o.tl[0] + ' · ' + pct(o.tl[1], o.n, 0) : '–'; }]);
+    metrics.push(['Model teratas', '', function (o) { return title(String(o.tm[0]).replace('DAIHATSU ', '')) + ' · ' + pct(o.tm[1], o.n, 0); }]);
+    var tb = h('tbody');
+    metrics.forEach(function (m) { var tr = h('tr', null, [h('td', null, [h('span', { style: 'font-weight:500', text: m[0] }), m[1] ? h('span', { class: 'dim', text: m[1] }) : null])]); info.forEach(function (o) { var v = m[2](o); tr.appendChild(h('td', { class: m[3] ? '' : 'num', style: m[3] ? 'text-align:right;white-space:normal' : null }, [v])); }); tb.appendChild(tr); });
+    var hr = h('tr', null, [h('th', null, [h('button', { type: 'button', tabindex: '-1', text: 'Ukuran' })])]);
+    info.forEach(function (o) { hr.appendChild(h('th', { class: 'num' }, [h('button', { type: 'button', tabindex: '-1', text: cabName(o.c) })])); });
+    host2.appendChild(h('div', { class: 'tw' }, [h('table', { class: 't' }, [h('thead', null, [hr]), tb])]));
+  }
+
+  function renderSeg(rows) {
+    var list = []; groupBy(rows, function (r) { return r.sg; }).forEach(function (rs, k) { var d = rs.filter(function (r) { return r.m === 'DAIHATSU'; }).length; list.push({ key: k, n: rs.length, dai: d, tm: top(count(rs, function (r) { return r.m; })) }); });
+    list.sort(function (a, b) { return b.n - a.n; }); var tot = rows.length;
+    draw('chSeg', { type: 'bar', data: { labels: list.map(function (o) { return o.key; }), datasets: [stackDs('Daihatsu', list.map(function (o) { return o.dai; }), css('--s1')), stackDs('Merek lain', list.map(function (o) { return o.n - o.dai; }), css('--s0'))] },
+      options: baseOpts({ indexAxis: 'y', layout: { padding: { right: 44 } }, interaction: { mode: 'index', intersect: false, axis: 'y' }, scales: { x: axis(true, { stacked: true, beginAtZero: true }), y: axis(false, { stacked: true }) }, plugins: Object.assign(baseOpts().plugins, { tipLabels: { on: true }, tooltip: Object.assign(baseOpts().plugins.tooltip, { callbacks: { footer: totalFooter } }) }) }) });
+    table($('tbSeg'), { rows: list, sort: ['n', 'desc'], cols: [
+      { k: 'key', label: 'Segmen', val: function (r) { return r.key; }, render: function (r) { return link('sg', r.key); } },
+      { k: 'n', label: 'Unit', num: true, val: function (r) { return r.n; }, render: function (r) { return r.n; } },
+      { k: 'p', label: 'Porsi', num: true, hide: true, val: function (r) { return r.n; }, render: function (r) { return pct(r.n, tot); } },
+      { k: 'dai', label: 'Daihatsu', num: true, val: function (r) { return r.dai; }, render: function (r) { return r.dai; } },
+      { k: 'ms', label: 'Pangsa Daihatsu', num: true, val: function (r) { return r.n ? r.dai / r.n : 0; }, render: function (r) { return pct(r.dai, r.n); } },
+      { k: 'tm', label: 'Merek teratas', render: function (r) { return h('span', { class: 'badge' + (r.tm[0] === 'DAIHATSU' ? ' d' : ''), text: title(r.tm[0]) + ' ' + fmt(r.tm[1]) }); } }] });
+  }
+
+  function renderMerek(rows) {
+    var tot = rows.length, list = []; groupBy(rows, function (r) { return r.m; }).forEach(function (rs, k) { list.push({ key: k, n: rs.length, tn: top(count(rs, function (r) { return r.nd; })) }); });
+    list.sort(function (a, b) { return b.n - a.n; });
+    var cm = new Map(list.map(function (o) { return [o.key, o.n]; })), vals = X.major.map(function (m) { return cm.get(m) || 0; }), rest = tot - vals.reduce(function (a, b) { return a + b; }, 0);
+    var labels = X.major.map(title).concat(['Merek lain']), colors = X.major.map(merekColor).concat([css('--s0')]);
+    draw('chMerek', { type: 'doughnut', data: { labels: labels, datasets: [{ data: vals.concat([rest]), backgroundColor: colors, borderColor: css('--card'), borderWidth: 2, hoverOffset: 4 }] }, options: baseOpts({ cutout: '66%', plugins: Object.assign(baseOpts().plugins, { centerText: { top: fmt(tot), bottom: 'unit' }, tooltip: Object.assign(baseOpts().plugins.tooltip, { callbacks: { label: function (it) { return ' ' + it.label + ': ' + fmt(it.parsed) + ' (' + pct(it.parsed, tot) + ')'; } } }) }) }) });
+    legend($('merekLegend'), labels.map(function (l, i) { return { label: l + ' ' + pct(vals.concat([rest])[i], tot), color: colors[i] }; }));
+    var max = list.length ? list[0].n : 1;
+    table($('tbMerek'), { rows: list, sort: ['n', 'desc'], limit: 8, search: 'Cari merek', text: function (r) { return r.key; }, cols: [
+      { k: 'key', label: 'Merek', val: function (r) { return r.key; }, render: function (r) { return link('m', r.key, title(r.key)); } },
+      { k: 'n', label: 'Unit', num: true, val: function (r) { return r.n; }, render: function (r) { return barCell(r.n, max, r.key !== 'DAIHATSU'); } },
+      { k: 'p', label: 'Pangsa', num: true, val: function (r) { return r.n; }, render: function (r) { return pct(r.n, tot); } },
+      { k: 'tn', label: 'Nama dagang teratas', hide: true, render: function (r) { return h('span', { class: 'badge', text: title(r.tn[0]) + ' ' + fmt(r.tn[1]) }); } }] });
+  }
+
+  function renderNd(rows) {
+    var tot = rows.length, list = []; groupBy(rows, function (r) { return r.nd; }).forEach(function (rs, k) { list.push({ key: k, n: rs.length, m: rs[0].m, sg: top(count(rs, function (r) { return r.sg; }))[0], sold: rs.filter(function (r) { return r.c; }).length }); });
+    list.sort(function (a, b) { return b.n - a.n; }); var t15 = list.slice(0, 15);
+    draw('chNd', { type: 'bar', data: { labels: t15.map(function (o) { return title(o.key); }), datasets: [{ label: 'Unit', data: t15.map(function (o) { return o.n; }), backgroundColor: t15.map(function (o) { return o.m === 'DAIHATSU' ? css('--s1') : css('--s0'); }), borderRadius: 4, maxBarThickness: 18 }] },
+      options: baseOpts({ indexAxis: 'y', layout: { padding: { right: 44 } }, scales: { x: axis(true, { beginAtZero: true }), y: axis(false) }, plugins: Object.assign(baseOpts().plugins, { tipLabels: { on: true }, tooltip: Object.assign(baseOpts().plugins.tooltip, { callbacks: { label: function (it) { return ' ' + fmt(it.parsed.x) + ' unit (' + pct(it.parsed.x, tot) + ')'; } } }) }) }) });
+    table($('tbNd'), { rows: list, sort: ['n', 'desc'], limit: 12, search: 'Cari nama dagang', text: function (r) { return r.key + ' ' + r.sg; }, cols: [
+      { k: 'key', label: 'Nama dagang', val: function (r) { return r.key; }, render: function (r) { return link('nd', r.key, title(r.key)); } },
+      { k: 'sg', label: 'Segmen', hide: true, val: function (r) { return r.sg; }, render: function (r) { return r.sg; } },
+      { k: 'n', label: 'Unit', num: true, val: function (r) { return r.n; }, render: function (r) { return r.n; } },
+      { k: 'p', label: 'Pangsa', num: true, val: function (r) { return r.n; }, render: function (r) { return pct(r.n, tot); } },
+      { k: 'sold', label: 'Dijual ' + (X.cabs.length === 1 ? X.cabs[0] : 'cabang terdata'), num: true, val: function (r) { return r.sold; }, render: function (r) { return r.m === 'DAIHATSU' ? r.sold : '–'; } }] });
+  }
+
+  function renderLok(rows) {
+    var tot = rows.length;
+    function build(keyFn) { var list = []; groupBy(rows, keyFn).forEach(function (rs, k) { list.push({ key: k, n: rs.length, dai: rs.filter(function (r) { return r.m === 'DAIHATSU'; }).length, rs: rs }); }); return list.sort(function (a, b) { return b.n - a.n; }); }
+    function cols(dim, label, split) {
+      return [
+        { k: 'key', label: label, val: function (r) { return r.key; }, render: function (r) { if (!split) return link(dim, r.key); var p = r.key.split(' — '); return link(dim, r.key, p[0], split(r, p)); } },
+        { k: 'n', label: 'Unit', num: true, val: function (r) { return r.n; }, render: function (r) { return r.n; } },
+        { k: 'p', label: 'Porsi', num: true, hide: true, val: function (r) { return r.n; }, render: function (r) { return pct(r.n, tot); } },
+        { k: 'dai', label: 'Daihatsu', num: true, val: function (r) { return r.dai; }, render: function (r) { return r.dai; } },
+        { k: 'ms', label: 'Pangsa Daihatsu', num: true, val: function (r) { return r.n ? r.dai / r.n : 0; }, render: function (r) { return pct(r.dai, r.n); } },
+        { k: 'tm', label: 'Merek & tipe teratas', render: function (r) { return topBadges(r.rs); } }];
+    }
+    var w = build(function (r) { return r.w; }), wmax = w.length ? w[0].n : 1, wc = cols('w', 'Kota / kabupaten');
+    wc[1].render = function (r) { return barCell(r.n, wmax); };
+    table($('tbWil'), { rows: w, sort: ['n', 'desc'], cols: wc });
+    table($('tbKec'), { rows: build(function (r) { return r.kk; }), sort: ['n', 'desc'], limit: 12, search: 'Cari kecamatan', text: function (r) { return r.key; }, cols: cols('kk', 'Kecamatan', function (_r, p) { return p[1]; }) });
+    table($('tbKel'), { rows: build(function (r) { return r.lk; }), sort: ['n', 'desc'], limit: 12, search: 'Cari kelurahan / desa', text: function (r) { return r.key + ' ' + r.rs[0].w; }, cols: cols('lk', 'Kelurahan / desa', function (r, p) { return p[1] + ', ' + r.rs[0].w; }) });
+  }
+
+  /* ---------- kelola data ---------- */
+  function log(msg, err) { var el = $('log'); el.insertBefore(h('div', { class: err ? 'e' : '', text: msg }), el.firstChild); while (el.children.length > 8) el.removeChild(el.lastChild); }
+  function confirmBtn(label, fn) {
+    var wrap = h('span'), b = h('button', { type: 'button', class: 'btn sm danger', text: label, onclick: function () { clear(wrap); wrap.appendChild(h('button', { type: 'button', class: 'btn sm danger', text: 'Ya, hapus', onclick: fn })); wrap.appendChild(document.createTextNode(' ')); wrap.appendChild(h('button', { type: 'button', class: 'btn sm', text: 'Batal', onclick: function () { clear(wrap); wrap.appendChild(b); } })); } });
+    wrap.appendChild(b); return wrap;
+  }
+  function renderKelola() {
+    var bm = groupBy(S.P, function (r) { return r.ym; }), rowsB = X.yms.map(function (ym) { var rs = bm.get(ym) || []; return { ym: ym, n: rs.length, dai: rs.filter(function (r) { return r.m === 'DAIHATSU'; }).length, sold: rs.filter(function (r) { return r.c; }).length }; });
+    table($('tbBulan'), { rows: rowsB, empty: 'Belum ada data Polreg.', cols: [
+      { k: 'ym', label: 'Bulan', render: function (r) { return C.ymLabel(r.ym); } }, { k: 'n', label: 'Unit', num: true, render: function (r) { return r.n; } },
+      { k: 'dai', label: 'Daihatsu', num: true, render: function (r) { return r.dai; } }, { k: 'sold', label: 'Cocok DO', num: true, hide: true, render: function (r) { return r.sold; } },
+      { k: 'x', label: '', num: true, render: function (r) { return confirmBtn('Hapus', function () { S.P = S.P.filter(function (x) { return x.ym !== r.ym; }); F.ym.delete(r.ym); reindex(); prune(); renderAll(); log(C.ymLabel(r.ym) + ' dihapus.'); persist(); }); } }] });
+    var rowsC = X.cabs.map(function (c) { var d = S.D.filter(function (x) { return x.c === c; }), ds = d.map(function (x) { return x.d; }).sort(); return { c: c, n: d.length, a: ds[0], b: ds[ds.length - 1] }; });
+    table($('tbCab'), { rows: rowsC, empty: 'Belum ada DO List.', cols: [
+      { k: 'c', label: 'Cabang', render: function (r) { return cabName(r.c); } }, { k: 'n', label: 'DO', num: true, render: function (r) { return r.n; } },
+      { k: 'p', label: 'Rentang', hide: true, render: function (r) { return C.ymShort(r.a.slice(0, 7)) + ' – ' + C.ymShort(r.b.slice(0, 7)); } },
+      { k: 'x', label: '', num: true, render: function (r) { return confirmBtn('Hapus', function () { S.D = S.D.filter(function (x) { return x.c !== r.c; }); delete S.cab[r.c]; reindex(); renderAll(); log('DO List ' + r.c + ' dihapus.'); persist(); }); } }] });
+    var ed = clear($('edTipe')), unk = sorted(count(S.P.filter(function (r) { return r.k; }), function (r) { return r.m + '|' + r.t; }));
+    if (!unk.length) ed.appendChild(h('div', { class: 'note', text: 'Semua tipe sudah punya nama dagang.' }));
+    unk.forEach(function (e, i) {
+      var p = e[0].split('|'), cur = S.P.filter(function (r) { return r.k && r.m + '|' + r.t === e[0]; })[0];
+      var inp = h('input', { type: 'text', id: 'ed-n-' + i, value: cur.nd, 'aria-label': 'Nama dagang untuk ' + p[1] });
+      var sel = h('select', { id: 'ed-s-' + i, 'aria-label': 'Segmen untuk ' + p[1] }, SEG_LIST.map(function (s) { return h('option', { value: s, selected: s === cur.sg, text: s }); }));
+      ed.appendChild(h('div', { class: 'ed' }, [h('span', null, [h('b', { text: title(p[0]) + ' ' }), p[1], h('span', { class: 'dim', text: fmt(e[1]) + ' unit' })]), inp, sel,
+        h('button', { type: 'button', class: 'btn sm', text: 'Simpan', onclick: function () { var v = C.clean(inp.value); if (!v) return; S.over[e[0]] = [v, sel.value]; reindex(); renderAll(); log(p[1] + ' → ' + v + ' (' + sel.value + ').'); persist(); } })]));
+    });
+  }
+
+  function readSheets(file) {
+    return file.arrayBuffer().then(function (buf) {
+      var wb = XLSX.read(buf, { type: 'array' }), out = {};
+      wb.SheetNames.forEach(function (n) { out[n] = XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, defval: null }); });
+      return out;
+    });
+  }
+  function ingest(files) {
+    if (!window.XLSX) { log('Pembaca Excel belum termuat. Periksa koneksi internet lalu muat ulang halaman.', true); return; }
+    var list = Array.from(files), changed = false;
+    list.reduce(function (p, file) {
+      return p.then(function () { return readSheets(file); }).then(function (sheets) {
+        var d = C.parseDOSheets(sheets);
+        if (d.rows.length) {
+          var map = new Map(S.D.map(function (x) { return [x.r || (x.c + x.d + Math.random()), x]; })), baru = 0;
+          d.rows.forEach(function (x) { if (!map.has(x.r)) baru++; map.set(x.r || (x.c + x.d + Math.random()), x); });
+          S.D = Array.from(map.values()); Object.assign(S.cab, d.cabang); changed = true;
+          log(file.name + ': ' + fmt(d.rows.length) + ' DO dari ' + Object.keys(d.cabang).map(function (c) { return c + ' ' + d.cabang[c]; }).join(', ') + ' (' + fmt(baru) + ' baru).'); return;
+        }
+        var kamus = {}; S.P.forEach(function (r) { if (!r.k) kamus[r.m + '|' + r.t] = [r.nd, r.sg]; });
+        var res = C.parsePolregSheets(sheets, file.name, kamus);
+        if (!res.rows.length) { log(file.name + ': format tidak dikenali. Yang didukung: berkas Polreg mentah, berkas gabungan, atau DO List DSC.', true); return; }
+        var known = {}; S.P.forEach(function (r) { (known[r.w] = known[r.w] || {})[r.kec] = 1; }); C.snapKec(res.rows, known);
+        var yms = {}; res.rows.forEach(function (r) { yms[r.ym] = (yms[r.ym] || 0) + 1; });
+        S.P = S.P.filter(function (r) { return !yms[r.ym]; }).concat(res.rows); changed = true;
+        log(file.name + ': ' + Object.keys(yms).sort().map(function (y) { return C.ymLabel(y) + ' ' + fmt(yms[y]) + ' unit'; }).join(', ') + '.' + (res.rows.some(function (r) { return r.k; }) ? ' Ada tipe baru yang belum punya nama dagang.' : ''));
+      }).catch(function (e) { log(file.name + ': gagal dibaca (' + (e && e.message || e) + ').', true); });
+    }, Promise.resolve()).then(function () { if (changed) { reindex(); prune(); renderAll(); persist(); } });
+  }
+
+  /* ---------- simpan ---------- */
+  var cap = { db: null, assets: null, dl: null }, LS = 'polreg-sulut-state';
+  function status(kind, txt) { $('saveDot').className = 'dot ' + kind; $('saveTxt').textContent = txt; }
+  function when(iso) { try { return new Date(iso).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return iso; } }
+  var saving = Promise.resolve();
+  function persist() {
+    saving = saving.then(function () {
+      var data = encode(), json = JSON.stringify(data);
+      status('wait', 'Menyimpan…');
+      if (cap.db && cap.assets) {
+        return cap.assets.upload(new Blob([json], { type: 'application/json' }), { type: 'application/json' }).then(function (up) {
+          var prev = S.assetId;
+          return cap.db.doc('polreg/state').set({ asset: up.id, savedAt: data.meta.savedAt, polreg: S.P.length, doList: S.D.length }).then(function () {
+            S.assetId = up.id; status('ok', 'Tersimpan ' + when(data.meta.savedAt) + ' — terbuka sama di semua perangkat Anda.');
+            if (prev && prev !== up.id) return cap.assets.delete(prev).catch(function () { });
+          });
+        }).catch(function (e) { status('err', 'Belum tersimpan (' + ((e && e.code) || 'gangguan') + '). Perubahan tetap berlaku sampai halaman ditutup.'); });
+      }
+      try { localStorage.setItem(LS, json); if (WEB) status('wait', 'Tersimpan di perangkat ini ' + when(data.meta.savedAt) + ', belum dikirim ke GitHub. Tekan "Unduh polreg.json" lalu unggah ke folder data di GitHub supaya semua perangkat ikut berubah.'); else status('ok', 'Tersimpan di browser ini ' + when(data.meta.savedAt) + '.'); }
+      catch (e) { status('err', 'Tidak bisa menyimpan di browser ini. Perubahan berlaku sampai halaman ditutup.'); }
+    });
+    return saving;
+  }
+  function loadLocal() { try { var s = localStorage.getItem(LS); if (s) { var j = JSON.parse(s); if (j && j.v === 1 && j.meta && j.meta.savedAt > SEED_TIME) { adopt(decode(j)); renderAll(); status(WEB ? 'wait' : 'ok', WEB ? 'Memakai perubahan di perangkat ini (' + when(j.meta.savedAt) + ') yang belum dikirim ke GitHub. Tekan "Unduh polreg.json" lalu unggah ke GitHub.' : 'Memakai data tersimpan di browser ini (' + when(j.meta.savedAt) + ').'); return true; } } } catch (e) { } return false; }
+  function useCap(n) { try { return window.claude && window.claude.use ? window.claude.use(n).catch(function () { return null; }) : Promise.resolve(null); } catch (e) { return Promise.resolve(null); } }
+  function initCaps() {
+    var seedTxt = 'Data bawaan: Polreg ' + (X.yms.length ? C.ymLabel(X.yms[0]) + ' – ' + C.ymLabel(X.yms[X.yms.length - 1]) : '') + ' dan DO List ' + X.cabs.join(', ') + '.';
+    Promise.all([useCap('db'), useCap('assets'), useCap('downloads')]).then(function (r) {
+      cap.db = r[0]; cap.assets = r[1]; cap.dl = r[2];
+      if (cap.dl || OFFLINE || WEB) { $('btnXlsx').hidden = false; $('btnApp').hidden = false; }
+      if (WEB) { $('btnJson').hidden = false; seedTxt = 'Data dari GitHub, diperbarui ' + when(SEED_TIME) + '.'; }
+      if (!cap.db) { if (!loadLocal()) status('', seedTxt); return; }
+      var timer = new Promise(function (res) { setTimeout(function () { res(null); }, 10000); });
+      return Promise.race([cap.db.doc('polreg/state').get(), timer]).then(function (snap) {
+        var d = snap && snap.exists ? snap.data() : null;
+        if (!d || !d.asset || !(d.savedAt > SEED_TIME)) { if (!loadLocal()) status('', seedTxt); return; }
+        return fetch('/_blob/' + d.asset).then(function (resp) { if (!resp.ok) throw new Error('blob'); return resp.json(); }).then(function (j) {
+          if (!j || j.v !== 1) throw new Error('format'); adopt(decode(j)); S.assetId = d.asset; renderAll(); status('ok', 'Memakai data tersimpan ' + when(d.savedAt) + '.');
+        });
+      }).catch(function () { if (!loadLocal()) status('err', 'Data tersimpan belum bisa dimuat; menampilkan data bawaan.'); });
+    });
+  }
+  function resetAll() {
+    var prev = S.assetId; S.assetId = null; adopt(decode(SEED)); Object.keys(F).forEach(function (k) { F[k].clear(); }); renderAll();
+    try { localStorage.removeItem(LS); } catch (e) { }
+    var p = cap.db ? cap.db.doc('polreg/state').delete().catch(function () { }) : Promise.resolve();
+    p.then(function () { if (prev && cap.assets) return cap.assets.delete(prev).catch(function () { }); }).then(function () { status('', 'Kembali ke data bawaan.'); log('Data dikembalikan ke bawaan.'); });
+  }
+  function exportXlsx() {
+    if (!window.XLSX) { log('Pembaca Excel belum termuat. Periksa koneksi internet lalu muat ulang halaman.', true); return; }
+    var wb = XLSX.utils.book_new();
+    var a = [['Bulan', 'Tahun', 'Wilayah', 'Kecamatan', 'Kelurahan', 'Merek', 'Tipe', 'Nama Dagang', 'Segmen', 'Nomor Rangka', 'Cabang Penjual']];
+    S.P.forEach(function (r) { var p = r.ym.split('-'); a.push([C.BULAN[+p[1] - 1], +p[0], r.w, r.kec, r.kel, r.m, r.t, r.nd, r.sg, r.r, r.c ? cabName(r.c) : (r.m === 'DAIHATSU' ? 'Cabang lain / belum ada DO List' : '')]); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(a), 'Data Gabungan');
+    var b = [['Wilayah', 'Semua Merek', 'Daihatsu'].concat(X.cabs.map(cabName)).concat(['Cabang Lain'])];
+    groupBy(S.P, function (r) { return r.w; }).forEach(function (rs, w) { var d = rs.filter(function (r) { return r.m === 'DAIHATSU'; }), row = [w, rs.length, d.length], s = 0; X.cabs.forEach(function (c) { var n = d.filter(function (r) { return r.c === c; }).length; s += n; row.push(n); }); row.push(d.length - s); b.push(row); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(b), 'Per Cabang');
+    var d = [['Cabang', 'Tanggal DO', 'Model', 'Leasing', 'Kecamatan Customer', 'Noka', 'Sudah di Polreg']];
+    S.D.forEach(function (x) { d.push([cabName(x.c), x.d, x.nd, x.lg, x.kec, x.r, X.pset.has(x.r) ? 'Ya' : 'Belum']); });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(d), 'DO List');
+    var out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' }), last = X.yms[X.yms.length - 1] || 'data';
+    saveFile('Polreg_Gabungan_sd_' + last + '.xlsx', new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })).then(function () { log('Data gabungan diunduh.'); }).catch(function (e) { if (!e || e.code !== 'declined') log('Unduhan tidak tersedia di tampilan ini.', true); });
+  }
+
+  /* ---------- unduh berkas & aplikasi offline ---------- */
+  function saveFile(name, blob) {
+    if (cap.dl) return cap.dl.save({ filename: name, data: blob });
+    var url = URL.createObjectURL(blob), a = h('a', { href: url, download: name, style: 'display:none' });
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 5000);
+    return Promise.resolve();
+  }
+  function libText(id, path) {
+    var el = $(id); if (el && el.textContent.length > 1000) return Promise.resolve(el.textContent);
+    return fetch(path).then(function (r) { if (!r.ok) throw new Error('lib'); return r.text(); }).catch(function () { return null; });
+  }
+  var LIBS = [['lib-chart', 'lib/chart.umd.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'], ['lib-xlsx', 'lib/xlsx.full.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js']];
+  function offlineHtml() {
+    return Promise.all(LIBS.map(function (l) { return libText(l[0], l[1]); })).then(function (t) {
+      var E = '</' + 'script>';
+      function sc(id, txt) { return '<script id="' + id + '">' + txt + E; }
+      var seed = JSON.stringify(encode()).replace(/</g, '\\u003c');
+      var head = '<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+        '<meta name="polreg-offline" content="1"><meta name="theme-color" content="#eef1f7"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Polreg Sulut">' +
+        '<title>Polreg Sulut</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap">' +
+        '<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>' +
+        '<style id="app-css">' + $('app-css').textContent + '</style></head><body>';
+      var libs = LIBS.map(function (l, i) { return t[i] ? sc(l[0], t[i]) : '<script id="' + l[0] + '" src="' + l[2] + '">' + E; }).join('\n');
+      return { html: head + BODY0 + '\n' + libs + '\n<script type="application/json" id="seed">' + seed + E + '\n' + sc('app-core', $('app-core').textContent) + '\n' + sc('app-main', $('app-main').textContent) + '\n</body></html>', full: t[0] && t[1] };
+    });
+  }
+  function downloadApp() {
+    var b = $('btnApp'); b.disabled = true; log('Menyiapkan aplikasi offline…');
+    offlineHtml().then(function (r) {
+      var last = X.yms[X.yms.length - 1] || 'data';
+      return saveFile('Polreg_Sulut_sd_' + last + '.html', new Blob([r.html], { type: 'text/html' })).then(function () {
+        log('Aplikasi offline diunduh' + (r.full ? ' (bisa dibuka tanpa internet).' : '; grafik butuh internet saat pertama dibuka.'));
+      });
+    }).catch(function (e) { if (!e || e.code !== 'declined') log('Aplikasi offline gagal diunduh di tampilan ini.', true); }).then(function () { b.disabled = false; });
+  }
+  function downloadJson() {
+    var data = encode(); data.meta.savedAt = new Date().toISOString();
+    saveFile('polreg.json', new Blob([JSON.stringify(data)], { type: 'application/json' })).then(function () {
+      log('polreg.json diunduh. Unggah ke folder data di GitHub (ganti berkas lama). Jika namanya berubah jadi "polreg (1).json", ganti dulu jadi polreg.json.');
+    }).catch(function () { log('polreg.json gagal diunduh.', true); });
+  }
+  function deviceNote() {
+    var n = clear($('devNote'));
+    if (WEB) {
+      n.appendChild(h('b', { text: 'Update bulanan lewat GitHub. ' }));
+      n.appendChild(document.createTextNode('1) Unggah berkas Polreg bulan baru atau DO List di bawah. 2) Tekan "Unduh polreg.json". 3) Di GitHub, buka folder data, pilih Add file → Upload files, unggah polreg.json (ganti yang lama), lalu Commit. Satu-dua menit kemudian semua HP, iPad, dan laptop memakai data baru.'));
+    } else if (OFFLINE) {
+      n.appendChild(h('b', { text: 'Versi offline. ' }));
+      n.appendChild(document.createTextNode('Data yang Anda unggah tersimpan di perangkat ini saja. Untuk memindahkan ke HP, iPad, atau laptop lain, tekan "Unduh aplikasi offline" lalu buka berkas barunya di perangkat itu.'));
+    } else {
+      n.appendChild(h('b', { text: 'Bisa dibuka di HP, laptop, iPad, dan iPhone. ' }));
+      n.appendChild(document.createTextNode('Buka tautan halaman ini di browser atau aplikasi Claude dengan akun yang sama; data yang Anda unggah ikut tersimpan di semua perangkat. Perlu tanpa internet? Tekan "Unduh aplikasi offline" di bawah.'));
+    }
+  }
+
+  /* ---------- mulai ---------- */
+  function wire() {
+    document.querySelectorAll('[data-go]').forEach(function (b) { b.addEventListener('click', function () { var t = $(b.getAttribute('data-go')); if (t) t.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }); });
+    ['P', 'D'].forEach(function (k) {
+      var inp = $('file' + k), dz = $('drop' + k);
+      inp.addEventListener('change', function () { if (inp.files.length) ingest(inp.files); inp.value = ''; });
+      dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('over'); });
+      dz.addEventListener('dragleave', function () { dz.classList.remove('over'); });
+      dz.addEventListener('drop', function (e) { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer && e.dataTransfer.files.length) ingest(e.dataTransfer.files); });
+    });
+    $('btnXlsx').addEventListener('click', exportXlsx);
+    $('btnApp').addEventListener('click', downloadApp);
+    $('btnJson').addEventListener('click', downloadJson);
+    $('btnReset').addEventListener('click', function () { $('resetAsk').hidden = false; $('btnReset').hidden = true; });
+    $('btnResetNo').addEventListener('click', function () { $('resetAsk').hidden = true; $('btnReset').hidden = false; });
+    $('btnResetYes').addEventListener('click', function () { $('resetAsk').hidden = true; $('btnReset').hidden = false; resetAll(); });
+    var rt; function rerender() { clearTimeout(rt); rt = setTimeout(function () { renderAll(true); }, 60); }
+    try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerender); } catch (e) { }
+    new MutationObserver(rerender).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    window.addEventListener('scroll', hideTip, { passive: true });
+    window.addEventListener('orientationchange', function () { setTimeout(rerender, 250); });
+  }
+  if (window.Chart) { Chart.defaults.font.family = css('--text'); Chart.defaults.font.size = 12; Chart.defaults.locale = 'id-ID'; }
+  adopt(decode(SEED)); buildFilters(); wire(); deviceNote(); renderAll(); initCaps();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { renderAll(true); });
+})();
+
+</script>
+<script>
+(function () {
+  var msg = document.getElementById('bootMsg');
+  function run(json) {
+    var s = document.createElement('script'); s.type = 'application/json'; s.id = 'seed'; s.textContent = json; document.body.appendChild(s);
+    var m = document.createElement('script'); m.textContent = document.getElementById('app-main').textContent; document.body.appendChild(m);
+    if (msg) msg.remove();
+  }
+  fetch('data/polreg.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(function (t) { JSON.parse(t); run(t); })
+    .catch(function () { if (msg) msg.textContent = 'Data belum bisa dimuat. Periksa internet lalu muat ulang halaman.'; });
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { }); });
+  }
+})();
+</script>
+</body>
+</html>
